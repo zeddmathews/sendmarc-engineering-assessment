@@ -28,3 +28,12 @@ Homestead.json
 .env.production
 .phpactor.json
 auth.json
+
+.idea
+.vscode
+*.swp
+.DS_Store
+*.log
+
+docker-compose.override.yml
+*.pid
