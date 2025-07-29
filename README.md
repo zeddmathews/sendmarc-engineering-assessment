@@ -32,7 +32,7 @@ This is an overengineered Laravel + Vue.js application for tracking live tennis 
 - Redis (queues & caching)
 - Docker & Docker Compose
 
-## 🔐 Security Highlights
+## Security Highlights
 
 - CSRF Protection
 - Input validation via Form Requests
@@ -41,6 +41,6 @@ This is an overengineered Laravel + Vue.js application for tracking live tennis 
 
 ---
 
-## 📜 License
+## License
 
 MIT License
