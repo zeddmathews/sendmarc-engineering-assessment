@@ -13,6 +13,18 @@ This is a Laravel + Vue.js application for tracking live tennis matches between 
 - Secure validation & CSRF protection
 - Dockerized setup (PostgreSQL, Redis)
 
+## Build process
+
+- `laravel new app`
+- `cd app`
+- `npm i && npm run build` _install dependencies and compile assets_
+- `php artisan migrate` _run database migrations_
+- `composer run dev`
+## Notes
+
+- Modify db migrations to include player data
+
+
 ## Docker Setup
 
 1. Clone the repo  
