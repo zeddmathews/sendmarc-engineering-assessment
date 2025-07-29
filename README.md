@@ -1,6 +1,6 @@
 # Laravel + Vue Tennis Scoring System
 
-This is an overengineered Laravel + Vue.js application for tracking live tennis matches between two players.
+This is a Laravel + Vue.js application for tracking live tennis matches between two players.
 
 ## Features
 
