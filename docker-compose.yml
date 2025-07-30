@@ -1,0 +1,40 @@
+services:
+  app:
+    container_name: tennis-app
+    build:
+      context: .
+      dockerfile: php/Dockerfile
+    volumes:
+      - ./app:/var/www
+    ports:
+      - "9000:9000"
+    working_dir: /var/www
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "8088:80"
+    volumes:
+      - ./app:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    depends_on:
+      - app
+      - db
+
+  db:
+    image: postgres:17
+    container_name: postgres
+    environment:
+      POSTGRES_DB: tennis
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "1234"
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgresql/data:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

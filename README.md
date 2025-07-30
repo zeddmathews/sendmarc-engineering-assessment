@@ -20,6 +20,8 @@ This is a Laravel + Vue.js application for tracking live tennis matches between 
 - `npm i && npm run build` _install dependencies and compile assets_
 - `php artisan migrate` _run database migrations_
 - `composer run dev`
+- `./vendor/bin/pest --init` _pest initialization_
+- `./vendor/bin/pest` _run tests_
 ## Notes
 
 - Modify db migrations to include player data
@@ -35,6 +37,8 @@ This is a Laravel + Vue.js application for tracking live tennis matches between 
 
 3. Build & run  
    `docker compose up --build`
+4. Access
+   `http://localhost:8088/`
 
 ## Tech Stack
 
