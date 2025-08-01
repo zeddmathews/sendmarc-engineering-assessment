@@ -36,17 +36,17 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  # seed:
-  #   build:
-  #   context: .
-  #   dockerfile: php/Dockerfile
-  #   depends_on:
-  #     - db
-  #   entrypoint: []
-  #   volumes:
-  #     - ./app:/var/www
-  #   env_file:
-  #     - .env
+  seed:
+    build:
+      context: .
+      dockerfile: php/Dockerfile
+    depends_on:
+      - db
+    entrypoint: ["php", "artisan", "db:seed"]
+    volumes:
+      - ./app:/var/www
+    env_file:
+      - .env
 
 volumes:
   pgdata:

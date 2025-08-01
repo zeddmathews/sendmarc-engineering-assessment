@@ -10,7 +10,7 @@ use Illuminate\Notifications\Notifiable;
 
 class Player extends Model
 {
-    use HasFactory, Notifiable;\
+    use HasFactory, Notifiable;
     /**
      * The attributes that are mass assignable.
      *

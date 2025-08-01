@@ -33,8 +33,8 @@ done
 
 echo "DB is ready."
 
-echo "YOU NEED TO BUILD THE SEEDER"
-# docker compose run --rm seed
+echo "Seeding the database"
+docker compose run --rm seed
 
 echo "Starting services"
 echo "You can now access the API at http://localhost:8088"
