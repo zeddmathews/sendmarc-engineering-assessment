@@ -5,24 +5,43 @@ services:
       context: .
       dockerfile: php/Dockerfile
     volumes:
-      - ./app:/var/www
+      - ./app:/var/www/app:delegated
     ports:
       - "9000:9000"
     working_dir: /var/www
     depends_on:
       - db
+    networks:
+      - laravel
 
+  vite:
+    container_name: tennis-vite
+    image: node:20-alpine
+    volumes:
+      - ./app:/var/www/app:delegated
+    ports:
+      - "5173:5173"
+    working_dir: /var/www
+    environment:
+      - VITE_API_URL=http://localhost:9000/api
+    command: sh -c "npm install && npm run dev" # switch to npm run build && tail -f /dev/null for production, npm run dev for development
+    depends_on:
+      - app
+    networks:
+      - laravel
   nginx:
     image: nginx:alpine
     container_name: nginx
     ports:
       - "8088:80"
     volumes:
-      - ./app:/var/www
+      - ./app:/var/www/app:delegated
       - ./nginx/conf.d/:/etc/nginx/conf.d/
     depends_on:
       - app
       - db
+    networks:
+      - laravel
 
   db:
     image: postgres:17
@@ -35,6 +54,8 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - laravel
 
   seed:
     build:
@@ -42,11 +63,16 @@ services:
       dockerfile: php/Dockerfile
     depends_on:
       - db
-    entrypoint: ["php", "artisan", "db:seed"]
+    entrypoint: ["sh", "-c", "php artisan migrate --force && php artisan db:seed --force"] #["php", "artisan", "db:seed"]
     volumes:
-      - ./app:/var/www
+      - ./app:/var/www/app:delegated
     env_file:
       - .env
+    networks:
+      - laravel
 
 volumes:
   pgdata:
+
+networks:
+  laravel:

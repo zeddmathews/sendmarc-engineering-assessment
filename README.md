@@ -115,7 +115,7 @@ This is a Laravel + Vue.js application for tracking live tennis matches between 
 3. Build & run  
    `docker compose up --build`
 4. Access
-   `http://localhost:8088/`
+   `http://localhost:9000/`
 
 ## Tech Stack
 

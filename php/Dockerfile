@@ -1,7 +1,7 @@
 FROM php:8.4-fpm
 
 # Set working directory
-WORKDIR /var/www
+WORKDIR /var/www/app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -20,6 +20,8 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
 
 COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
+
+COPY . /var/www/app
 
 ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]
 

@@ -24,7 +24,7 @@ echo "Rebuilding Docker images"
 docker compose build --no-cache
 
 echo "Starting DB and API services in background"
-docker compose up -d db nginx app
+docker compose up -d db nginx app vite
 
 echo "Waiting for the DB to be ready..."
 until docker exec postgres pg_isready -U postgres >/dev/null 2>&1; do
