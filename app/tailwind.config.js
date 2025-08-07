@@ -1,4 +1,6 @@
-module.exports = {
+import twAnimateCss from 'tw-animate-css';
+
+export default {
   content: [
     './resources/views/**/*.blade.php',
     './resources/js/**/*.vue',
@@ -8,6 +10,6 @@ module.exports = {
     extend: {},
   },
   plugins: [
-    require('tw-animate-css'),
+    twAnimateCss,
   ],
-}
+};

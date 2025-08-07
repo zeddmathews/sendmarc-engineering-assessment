@@ -4,34 +4,40 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
     server: {
-        host: true, // 👈 allow Docker to bind to 0.0.0.0
-        port: 5173,
-        strictPort: true,
-        watch: {
-            usePolling: true, // 👈 Required for Docker + file change detection
-        },
-        proxy: {
-            '/api': {
-                target: 'http://app:9000',
-                changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/api/, '/api'),
+            host: '0.0.0.0', // Allow Docker to bind to 0.0.0.0
+            port: 5173,
+            strictPort: true,
+            // watch: {
+            // usePolling: false, // Required for Docker + file change detection
+            // //   interval: 100,
+            //     ignored: ['**/node_modules/**', '**/vendor/**', '**/storage/**', '**/.git/**',],
+            // },
+            hmr: {
+                host: 'localhost',
+                port: 5173,
             },
-        },
-    },
-    plugins: [
-        laravel({
-            input: ['resources/js/app.ts', 'resources/css/app.css'],
-            ssr: 'resources/js/ssr.ts',
-            refresh: true,
-        }),
-        vue({
-            template: {
-                transformAssetUrls: {
-                    base: null,
-                    includeAbsolute: false,
+            proxy: {
+                '/api': {
+                    target: 'http://host.docker.internal:8000',
+                    // target: 'http://tennis-php-fpm:8000', container
+                    changeOrigin: true,
+                    rewrite: (path) => path.replace(/^\/api/, '/api'),
                 },
             },
-        }),
+    },
+    plugins: [
+            laravel({
+                input: ['resources/js/app.ts', 'resources/css/app.css'],
+                refresh: true,
+            }),
+            vue({
+                template: {
+                    transformAssetUrls: {
+                        base: null,
+                        includeAbsolute: false,
+                    },
+                },
+            }),
     ],
     build: {
         outDir: 'public/build',
@@ -39,8 +45,7 @@ export default defineConfig({
         manifest: true,
         rollupOptions: {
             input: {
-                app: 'resources/js/app.ts',
-                ssr: 'resources/js/ssr.ts',
+                    app: 'resources/js/app.ts',
             },
         },
     },

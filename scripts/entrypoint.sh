@@ -1,7 +1,30 @@
 #!/bin/bash
+set -e
 
-# Run any pending migrations
-php artisan migrate
+cd /var/www/app
 
-# Then run the original CMD (Laravel dev server, supervisor, or whatever)
-exec "$@"
+# Ensure .env exists
+if [ ! -f ".env" ]; then
+    echo "Copying .env.example to .env..."
+    cp .env.example .env
+fi
+
+# Laravel cache clear & cache rebuild
+php artisan config:clear
+php artisan cache:clear
+php artisan view:clear
+php artisan route:clear
+
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Fix permissions
+mkdir -p storage/framework/views storage/framework/cache
+chown -R www-data:www-data storage bootstrap/cache
+
+# Start php-fpm in foreground
+php-fpm -F
+
+#docker compose build app
+#docker compose up -d app

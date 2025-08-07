@@ -24,17 +24,29 @@ echo "Rebuilding Docker images"
 docker compose build --no-cache
 
 echo "Starting DB and API services in background"
-docker compose up -d db nginx app vite
+docker compose up -d db
 
 echo "Waiting for the DB to be ready..."
 until docker exec postgres pg_isready -U postgres >/dev/null 2>&1; do
     sleep 1
 done
 
+
 echo "DB is ready."
 
 echo "Seeding the database"
 docker compose run --rm seed
+docker compose up -d php-fpm
+docker compose up -d nginx
+# docker compose up -d node
+
+# until docker ps --format '{{.Names}}' | grep -q '^tennis-php-fpm$'; do
+#     echo "Waiting for tennis-php-fpm container to start..."
+#     sleep 2
+# done
+
+# echo "Starting shadcn UI"
+# docker exec -d node composer run dev
 
 echo "Starting services"
-echo "You can now access the API at http://localhost:8088"
+echo "You can now access the application at http://127.0.0.1:8000"

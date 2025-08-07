@@ -15,16 +15,21 @@ This is a Laravel + Vue.js application for tracking live tennis matches between 
 
 ## Build process
 **Depends on Docker engine**
-- `laravel new app`
+**Install mutagen for live sync**
+
+- Clone the repo 
+- Copy the `.env` file from `.env.example`  
 - `cd app`
-- `npm i && npm run build` _install dependencies and compile assets_
-- `php artisan migrate` _run database migrations_
-- `composer run dev`
-- `./vendor/bin/pest --init` _pest initialization_
-- `./vendor/bin/pest` _run tests_
+- Run `npm install` locally (outside Docker) to install frontend dependencies  
+- Start the Vite development server locally with `npm run dev`
+- `cd ..`
 - `chmod +x scripts/01-clean_start.sh`
 - `cd scripts`
 - `./01-clean_start.sh`
+
+**Testing**
+- `./vendor/bin/pest --init` _pest initialization_
+- `./vendor/bin/pest` _run tests_
 ## Notes
 
 - Current config build from docker-compose and points to entrypoint.sh to run migrations. Need to add full reset scripts, start, stop, wipe
@@ -137,3 +142,31 @@ This is a Laravel + Vue.js application for tracking live tennis matches between 
 ## License
 
 MIT License
+
+clean start script
+├─ port check
+├─ docker compose down (stop/remove containers & volumes)
+├─ chmod scripts
+├─ docker compose build (Dockerfile builds)
+│   ├─ FROM php:8.4-fpm base image
+│   ├─ RUN commands (install deps, PHP extensions, copy files)
+│   ├─ COPY config + entrypoint
+│   ├─ set ENTRYPOINT, expose port
+│
+├─ docker compose up -d db (start postgres container)
+│   └─ postgres server process starts inside container
+│
+├─ wait loop: docker exec postgres pg_isready (wait for postgres readiness)
+│
+├─ docker compose run --rm seed (run migrations + seeding)
+│   └─ php artisan migrate + db:seed commands inside seed container
+│
+├─ docker compose up -d app (start app container)
+│   ├─ entrypoint.sh runs inside container:
+│   │   ├─ composer install if needed
+│   │   ├─ copy .env if needed
+│   │   ├─ php artisan cache/config clear
+│   │   ├─ php-fpm start (daemon mode)
+│   │   └─ nginx start (foreground)
+│
+└─ echo "Starting services"
