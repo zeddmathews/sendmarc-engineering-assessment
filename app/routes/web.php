@@ -2,19 +2,20 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\PlayerController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
 
-// Route::get('dashboard', function () {
-//     return Inertia::render('Dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', fn () => Inertia::render('Dashboard'))->name('dashboard');
     Route::get('/simulate', fn () => Inertia::render('SimulateMatch'))->name('simulate');
     Route::get('/matches', fn () => Inertia::render('MatchHistory'))->name('matches');
-    Route::get('/rankings', fn () => Inertia::render('Rankings'))->name('rankings');
+    Route::get('/rank', fn () => Inertia::render('Rankings'))->name('rank');
+    Route::get('/players', [PlayerController::class, 'indexPage'])->name('players.index');
+    Route::get('/players/create', [PlayerController::class, 'createPage'])->name('players.create');
+    Route::get('/players/{player}/edit', [PlayerController::class, 'editPage'])->name('players.edit');
 });
 
 require __DIR__.'/settings.php';

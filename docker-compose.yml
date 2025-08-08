@@ -21,20 +21,6 @@ services:
       - laravel
     entrypoint: ["/usr/local/bin/entrypoint.sh"]
 
-  # node:
-  #   container_name: tennis-node
-  #   image: node:20-alpine
-  #   working_dir: /var/www/app
-  #   volumes:
-  #     - ./app:/var/www/app:cached
-  #   ports:
-  #     - "5173:5173"
-  #   networks:
-  #     - laravel
-  #   depends_on:
-  #     php-fpm:
-  #       condition: service_healthy
-  #   command: ["sh", "-c", "npm ci && npm run dev"]
   nginx:
     container_name: tennis-nginx
     image: nginx:latest

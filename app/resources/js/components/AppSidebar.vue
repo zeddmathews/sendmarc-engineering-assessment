@@ -26,7 +26,12 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Rankings',
-        href: '/rankings',
+        href: '/rank',
+        icon: Trophy, // or BarChart3
+    },
+    {
+        title: 'Players',
+        href: route('players.index'),
         icon: Trophy, // or BarChart3
     },
 ];

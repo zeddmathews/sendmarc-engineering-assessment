@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Enums\PlayerRank;
 
 class Player extends Model
 {
@@ -22,8 +23,15 @@ class Player extends Model
     protected $fillable = [
         'first_name',
         'last_name',
-        'ranking',
+        'email',
+        'rank',
         'country',
+        'points'
+    ];
+
+    protected $casts = [
+        'rank' => PlayerRank::class,
+        'points' => 'integer',
     ];
 
     public function stats(): HasMany

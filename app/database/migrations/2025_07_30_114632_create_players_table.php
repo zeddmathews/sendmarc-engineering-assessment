@@ -15,8 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('ranking')->nullable();
+            $table->string('email')->unique();
+            $table->enum('rank', ['Silver', 'Gold', 'Platinum'])->nullable();
             $table->string('country')->nullable();
+            $table->integer('points')->default(0);
             $table->timestamps();
         });
     }

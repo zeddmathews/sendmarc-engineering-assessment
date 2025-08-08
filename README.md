@@ -45,7 +45,7 @@ This is a Laravel + Vue.js application for tracking live tennis matches between 
 - PlayerStats model + migration
    - Done
 - Seed admin player on startup
-   - 
+   - Done
 - Add factories for test data
    - 
 **Controllers**

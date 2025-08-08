@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PlayerStats;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class PlayerStatsController extends Controller
 {
