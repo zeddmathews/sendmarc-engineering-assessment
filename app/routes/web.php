@@ -8,7 +8,7 @@ Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/dashboard', fn () => Inertia::render('Dashboard'))->name('dashboard');
     Route::get('/simulate', fn () => Inertia::render('SimulateMatch'))->name('simulate');
     Route::get('/matches', fn () => Inertia::render('MatchHistory'))->name('matches');

@@ -72,7 +72,7 @@ onMounted(async () => {
           <td class="border border-gray-300 px-4 py-2">{{ player.rank ?? '-' }}</td>
           <td class="border border-gray-300 px-4 py-2">{{ player.points }}</td>
           <td class="border border-gray-300 px-4 py-2 text-center space-x-2">
-            <Link :href="route('players.edit', { player: player.id })">
+            <Link :href="route('players.edit', { player: player.id })" v-if="player && player.id">
               <Button size="sm" variant="outline">Edit</Button>
             </Link>
             <Button size="sm" variant="destructive" @click="onDelete(player.id)">Delete</Button>

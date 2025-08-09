@@ -6,22 +6,36 @@ import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 import { initializeTheme } from './composables/useAppearance';
+import { csrfHttp } from './api/http';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Tennis-App';
 
-createInertiaApp({
-    title: (title) => (title ? `${title} - ${appName}` : appName),
-    resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob<DefineComponent>('./pages/**/*.vue')),
-    setup({ el, App, props, plugin }) {
-        createApp({ render: () => h(App, props) })
-            .use(plugin)
-            .use(ZiggyVue)
-            .mount(el);
-    },
-    progress: {
-        color: '#4B5563',
-    },
-});
+async function initializeCsrf() {
+    try {
+        await csrfHttp.get('/sanctum/csrf-cookie');
+        console.log('Sanctum CSRF cookie fetched successfully');
+    } catch (error) {
+        console.error('Failed to fetch Sanctum CSRF cookie:', error);
+    }
+}
 
-// This will set light / dark mode on page load...
-initializeTheme();
+initializeCsrf().then(() => {
+    createInertiaApp({
+        title: (title) => (title ? `${title} - ${appName}` : appName),
+        resolve: (name) =>
+            resolvePageComponent(
+                `./pages/${name}.vue`,
+                import.meta.glob<DefineComponent>('./pages/**/*.vue')
+            ),
+        setup({ el, App, props, plugin }) {
+            createApp({ render: () => h(App, props) })
+                .use(plugin)
+                .use(ZiggyVue)
+                .mount(el);
+        },
+        progress: {
+            color: '#4B5563',
+        },
+    });
+    initializeTheme();
+});
