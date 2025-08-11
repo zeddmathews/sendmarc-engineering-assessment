@@ -16,6 +16,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/players', [PlayerController::class, 'indexPage'])->name('players.index');
     Route::get('/players/create', [PlayerController::class, 'createPage'])->name('players.create');
     Route::get('/players/{player}/edit', [PlayerController::class, 'editPage'])->name('players.edit');
+    Route::get('/game', fn () => Inertia::render('game/Play'))->name('game.play');
 });
 
 require __DIR__.'/settings.php';

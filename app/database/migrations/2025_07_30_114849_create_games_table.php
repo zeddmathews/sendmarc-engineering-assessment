@@ -15,8 +15,13 @@ return new class extends Migration
             $table->id();
             $table->dateTime('played_at');
             $table->unsignedBigInteger('winner_id')->nullable();
+            $table->string('match_status')->default('ongoing');
+            $table->unsignedBigInteger('player1_id')->nullable();
+            $table->unsignedBigInteger('player2_id')->nullable();
             $table->timestamps();
 
+            $table->foreign('player1_id')->references('id')->on('players')->onDelete('cascade');
+            $table->foreign('player2_id')->references('id')->on('players')->onDelete('cascade');
             $table->foreign('winner_id')->references('id')->on('players')->onDelete('set null');
         });
     }

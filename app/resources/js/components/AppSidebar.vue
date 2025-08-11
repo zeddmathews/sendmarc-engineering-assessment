@@ -34,6 +34,11 @@ const mainNavItems: NavItem[] = [
         href: route('players.index'),
         icon: Trophy, // or BarChart3
     },
+    {
+        title: 'Game',
+        href: route('game.play'),
+        icon: Trophy, // or BarChart3
+    },
 ];
 
 const footerNavItems: NavItem[] = [

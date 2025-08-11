@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\User;
 
 class GameController extends Controller
 {
@@ -19,9 +20,9 @@ class GameController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(User $user)
     {
-        //
+        return $user->isAdmin() ? Inertia::render('game/Create') : abort(403, 'Unauthorized');
     }
 
     /**
@@ -29,7 +30,17 @@ class GameController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'played_at' => 'required|date',
+            'winner_id' => 'nullable|exists:players,id',
+            'match_status' => 'required|string|in:upcoming,ongoing,completed,cancelled,tied',
+            'player1_id' => 'nullable|exists:players,id',
+            'player2_id' => 'nullable|exists:players,id',
+        ]);
+
+        $game = Game::create($data);
+
+        return response()->json($game, 201);
     }
 
     /**
@@ -37,7 +48,8 @@ class GameController extends Controller
      */
     public function show(Game $game)
     {
-        //
+        $game->load(['player1', 'player2']);
+        return response()->json($game);
     }
 
     /**

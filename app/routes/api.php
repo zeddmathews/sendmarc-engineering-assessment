@@ -13,4 +13,13 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         'update'  => 'api.players.update',
         'destroy' => 'api.players.destroy',
     ]);
+    Route::apiResource('games', 'App\Http\Controllers\GameController')->names([
+        'index' => 'api.games.index',
+        'create'  => 'api.games.create',
+        'store'   => 'api.games.store',
+        'show'    => 'api.games.show',
+        'edit'    => 'api.games.edit',
+        'update'  => 'api.games.update',
+        'destroy' => 'api.games.destroy',
+    ]);
 });
