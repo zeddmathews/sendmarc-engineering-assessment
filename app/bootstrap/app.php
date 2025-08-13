@@ -12,6 +12,7 @@ use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Session\Middleware\StartSession;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use Illuminate\Routing\Middleware\SubstituteBindings;
+use App\Http\Middleware\AdminOnly;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -28,6 +29,9 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleAppearance::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
+        ]);
+        $middleware->alias([
+            'admin' => AdminOnly::class,
         ]);
         $middleware->group('api', [
             EnsureFrontendRequestsAreStateful::class,

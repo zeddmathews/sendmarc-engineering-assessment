@@ -9,25 +9,30 @@ use App\Models\User;
 
 class GameController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = Game::with(['player1', 'player2'])->orderBy('played_at', 'desc');
+        if ($request->has('game_id')) {
+            $query->where('id', $request->game_id);
+        }
+        if ($request->has('player1_id')) {
+            $query->where('player1_id', $request->player1_id);
+        }
+        if ($request->has('player2_id')) {
+            $query->where('player2_id', $request->player2_id);
+        }
+        $games = $query->get();
+
+        return Inertia::render('games/Index', [
+            'games' => $games
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(User $user)
+    public function create()
     {
-        return $user->isAdmin() ? Inertia::render('game/Create') : abort(403, 'Unauthorized');
+        return Inertia::render('games/Create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -40,39 +45,44 @@ class GameController extends Controller
 
         $game = Game::create($data);
 
-        return response()->json($game, 201);
+        return redirect()->route('games.index')->with('success', 'Game created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Game $game)
     {
         $game->load(['player1', 'player2']);
-        return response()->json($game);
+
+        return Inertia::render('games/Show', [
+            'game' => $game
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Game $game)
     {
-        //
+        $game->load(['player1', 'player2']);
+        return Inertia::render('games/Edit', [
+            'game' => $game
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Game $game)
     {
-        //
+        $data = $request->validate([
+            'played_at' => 'required|date',
+            'winner_id' => 'nullable|exists:players,id',
+            'match_status' => 'required|string|in:upcoming,ongoing,completed,cancelled,tied',
+            'player1_id' => 'nullable|exists:players,id',
+            'player2_id' => 'nullable|exists:players,id',
+        ]);
+
+        $game->update($data);
+
+        return redirect()->route('games.index')->with('success', 'Game updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Game $game)
     {
-        //
+        $game->delete();
+        return redirect()->route('games.index')->with('success', 'Game deleted successfully.');
     }
 }

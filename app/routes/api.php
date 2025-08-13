@@ -2,24 +2,23 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PlayerController;
+use App\Http\Controllers\GameController;
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::apiResource('players', PlayerController::class)->names([
-        'index' => 'api.players.index',
-        'create'  => 'api.players.create',
+        'index'   => 'api.players.index',
         'store'   => 'api.players.store',
         'show'    => 'api.players.show',
-        'edit'    => 'api.players.edit',
         'update'  => 'api.players.update',
         'destroy' => 'api.players.destroy',
     ]);
-    Route::apiResource('games', 'App\Http\Controllers\GameController')->names([
-        'index' => 'api.games.index',
-        'create'  => 'api.games.create',
-        'store'   => 'api.games.store',
-        'show'    => 'api.games.show',
-        'edit'    => 'api.games.edit',
-        'update'  => 'api.games.update',
-        'destroy' => 'api.games.destroy',
-    ]);
+
+    Route::get('games', [GameController::class, 'index'])->name('api.games.index');
+    Route::get('games/{game}', [GameController::class, 'show'])->name('api.games.show');
+
+    Route::middleware(['admin'])->group(function () {
+        Route::post('games', [GameController::class, 'store'])->name('api.games.store');
+        Route::put('games/{game}', [GameController::class, 'update'])->name('api.games.update');
+        Route::delete('games/{game}', [GameController::class, 'destroy'])->name('api.games.destroy');
+    });
 });
