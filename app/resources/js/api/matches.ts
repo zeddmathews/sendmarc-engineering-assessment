@@ -1,5 +1,14 @@
 import http from './http';
 
-export const getMatchHistory = () => http.get('/matches');
-export const simulateMatch = (data: { player1_id: number; player2_id: number }) =>
-    http.post('/matches/simulate', data);
+export const getTennisGame = (gameId: number) =>
+    http.get(`/simulate-match/${gameId}`);
+
+export const assignPoint = (gameId: number, playerId: number) =>
+    http.post(`/simulate-match/${gameId}/point`, { player_id: playerId });
+
+export const getUpcomingGames = () =>
+    http.get('/games/upcomings');
+
+export const startGame = (gameId: number) => {
+    return http.post(`/games/${gameId}/start`);
+};

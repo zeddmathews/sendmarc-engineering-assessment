@@ -4,7 +4,7 @@ import { Head, usePage, router, Link } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
-import type { GamesPageProps } from '@/types';
+import type { GamesPageProps, BreadcrumbItem } from '@/types';
 
 const page = usePage<GamesPageProps>();
 
@@ -36,7 +36,7 @@ const deleteGame = (id: number) => {
     }
 };
 
-const breadcrumbs = [
+const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Games', href: route('games.index') }
 ];
 </script>

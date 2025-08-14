@@ -14,7 +14,16 @@ class Game extends Model
         'match_status',
         'player1_id',
         'player2_id',
+        'player1_points',
+        'player2_points',
     ];
+
+    protected $casts = [
+        'player1_points' => 'integer',
+        'player2_points' => 'integer',
+        'played_at' => 'datetime',
+    ];
+
 
     public function winner(): BelongsTo
     {
@@ -23,12 +32,18 @@ class Game extends Model
 
     public function player1(): BelongsTo
     {
-        return $this->belongsTo(Player::class, 'player1_id');
+        return $this->belongsTo(Player::class, 'player1_id')->withDefault([
+            'first_name' => 'Unknown',
+            'last_name' => 'Player',
+        ]);
     }
 
     public function player2(): BelongsTo
     {
-        return $this->belongsTo(Player::class, 'player2_id');
+        return $this->belongsTo(Player::class, 'player2_id')->withDefault([
+            'first_name' => 'Unknown',
+            'last_name' => 'Player',
+        ]);
     }
 
     public function playerStats(): HasMany

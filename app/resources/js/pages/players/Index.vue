@@ -3,10 +3,10 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 import { getPlayers, deletePlayer } from '@/api/players';
-import type { Player } from '@/types';
+import type { Player, BreadcrumbItem } from '@/types';
 import { Button } from '@/components/ui/button';
 
-const breadcrumbs = [
+const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Players',
         href: route('players.index'),

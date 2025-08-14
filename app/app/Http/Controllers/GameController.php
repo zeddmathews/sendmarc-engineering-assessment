@@ -27,6 +27,26 @@ class GameController extends Controller
             'games' => $games
         ]);
     }
+    public function upcomingGames()
+    {
+        try {
+            $games = Game::with(['player1', 'player2'])->where('match_status', 'upcoming')->orderBy('played_at', 'asc')->get();
+            return response()->json($games);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
+    // public function upcomingGames()
+    // {
+    //     $games = Game::with(['player1', 'player2'])
+    //         ->where('match_status', 'upcoming')
+    //         ->orderBy('played_at', 'asc')
+    //         ->get();
+
+    //     return response()->json($games);
+    // }
 
     public function create()
     {
@@ -41,6 +61,9 @@ class GameController extends Controller
             'match_status' => 'required|string|in:upcoming,ongoing,completed,cancelled,tied',
             'player1_id' => 'nullable|exists:players,id',
             'player2_id' => 'nullable|exists:players,id',
+            'player1_points' => 'nullable|integer|min:0',
+            'player2_points' => 'nullable|integer|min:0',
+
         ]);
 
         $game = Game::create($data);
@@ -55,6 +78,18 @@ class GameController extends Controller
         return Inertia::render('games/Show', [
             'game' => $game
         ]);
+    }
+
+    public function start(Game $game)
+    {
+        if ($game->match_status === 'upcoming') {
+            $game->match_status = 'ongoing';
+            $game->save();
+        }
+
+        $game->load(['player1', 'player2']);
+
+        return response()->json($game);
     }
 
     public function edit(Game $game)
@@ -73,6 +108,9 @@ class GameController extends Controller
             'match_status' => 'required|string|in:upcoming,ongoing,completed,cancelled,tied',
             'player1_id' => 'nullable|exists:players,id',
             'player2_id' => 'nullable|exists:players,id',
+            'player1_points' => 'nullable|integer|min:0',
+            'player2_points' => 'nullable|integer|min:0',
+
         ]);
 
         $game->update($data);

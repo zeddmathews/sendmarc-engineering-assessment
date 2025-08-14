@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('match_status')->default('ongoing');
             $table->unsignedBigInteger('player1_id')->nullable();
             $table->unsignedBigInteger('player2_id')->nullable();
+            $table->integer('player1_points')->default(0);
+            $table->integer('player2_points')->default(0);
             $table->timestamps();
 
             $table->foreign('player1_id')->references('id')->on('players')->onDelete('cascade');

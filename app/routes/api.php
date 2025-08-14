@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\GameController;
+use App\Http\Controllers\TennisGameController;
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::apiResource('players', PlayerController::class)->names([
@@ -14,7 +15,12 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     ]);
 
     Route::get('games', [GameController::class, 'index'])->name('api.games.index');
+    Route::get('games/upcomings', [GameController::class, 'upcomingGames'])->name('api.games.upcomings');
+    Route::post('games/{game}/start', [GameController::class, 'start'])->name('api.games.start');
     Route::get('games/{game}', [GameController::class, 'show'])->name('api.games.show');
+
+    Route::get('simulate-match/{game}', [TennisGameController::class, 'show'])->name('api.simulate.show');
+    Route::post('simulate-match/{game}/point', [TennisGameController::class, 'point'])->name('api.sumlate.point');
 
     Route::middleware(['admin'])->group(function () {
         Route::post('games', [GameController::class, 'store'])->name('api.games.store');
