@@ -13,7 +13,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
         $this->call(PlayersTableSeeder::class);
         User::factory()->create([
             'name' => 'Test User',
@@ -22,7 +21,7 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
-            'is_admin' => 1,
+            'is_admin' => true,
         ]);
     }
 }

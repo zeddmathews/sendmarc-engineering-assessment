@@ -9,7 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class UpdateGamesWon implements ShouldQueue
+class UpdateGameWon implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -22,6 +22,7 @@ class UpdateGamesWon implements ShouldQueue
 
     public function handle(): void
     {
+        
         $this->player->increment('games_won');
     }
 }

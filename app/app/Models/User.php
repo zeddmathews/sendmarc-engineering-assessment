@@ -43,6 +43,12 @@ class User extends Authenticatable
     {
         return (bool) $this->is_admin;
     }
+
+    public function player()
+    {
+        return $this->hasOne(Player::class);
+    }
+
     protected function casts(): array
     {
         return [

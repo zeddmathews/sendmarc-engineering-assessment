@@ -68,7 +68,7 @@ class GameController extends Controller
 
         $game = Game::create($data);
 
-        return redirect()->route('games.index')->with('success', 'Game created successfully.');
+        return redirect()->route('games.index')->with('message', 'Game created successfully.');
     }
 
     public function show(Game $game)
@@ -115,12 +115,15 @@ class GameController extends Controller
 
         $game->update($data);
 
-        return redirect()->route('games.index')->with('success', 'Game updated successfully.');
+        return response()->json([
+            'success' => true,
+            'game' => $game->load(['player1', 'player2'])
+        ]);
     }
 
     public function destroy(Game $game)
     {
         $game->delete();
-        return redirect()->route('games.index')->with('success', 'Game deleted successfully.');
+        return redirect()->route('games.index')->with('message', 'Game deleted successfully.');
     }
 }

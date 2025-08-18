@@ -6,6 +6,7 @@ use App\Models\Player;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 class PlayerController extends Controller
 {
@@ -52,11 +53,16 @@ class PlayerController extends Controller
             'points' => 'nullable|integer|min:0',
         ]);
 
-        $player = Player::create($data);
+        if (!$request->user()->is_admin) {
+            $data['email'] = $request->user()->email;
+        }
 
-        return response()->json($player, 201);
+        $data['user_id'] = $request->user()->id;
+
+        Player::create($data);
+
+        return to_route('dashboard');
     }
-
     /**
      * Display the specified resource.
     */
@@ -98,7 +104,7 @@ class PlayerController extends Controller
     public function destroy(Player $player)
     {
         $player->delete();
+        return redirect()->route('players.index')->with('message', 'Player deleted successfully.');
 
-        return response()->json(null, 204);
     }
 }

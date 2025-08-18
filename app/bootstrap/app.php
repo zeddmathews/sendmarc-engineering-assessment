@@ -13,6 +13,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use App\Http\Middleware\AdminOnly;
+use App\Http\Middleware\PlayerExists;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -32,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->alias([
             'admin' => AdminOnly::class,
+            'player.exists' => PlayerExists::class,
         ]);
         $middleware->group('api', [
             EnsureFrontendRequestsAreStateful::class,

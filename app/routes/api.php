@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\TennisGameController;
+use App\Http\Controllers\UserController;
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::apiResource('players', PlayerController::class)->names([
@@ -26,5 +27,6 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('games', [GameController::class, 'store'])->name('api.games.store');
         Route::put('games/{game}', [GameController::class, 'update'])->name('api.games.update');
         Route::delete('games/{game}', [GameController::class, 'destroy'])->name('api.games.destroy');
+        Route::get('users', [UserController::class, 'index'])->name('api.users.index');
     });
 });

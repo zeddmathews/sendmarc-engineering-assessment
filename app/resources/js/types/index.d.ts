@@ -28,6 +28,8 @@ export interface Game {
     match_status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled' | 'tied';
     player1?: Player;
     player2?: Player;
+    player1_points: number;
+    player2_points: number;
     created_at?: string;
     updated_at?: string;
 }

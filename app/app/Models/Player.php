@@ -34,6 +34,11 @@ class Player extends Model
         'points' => 'integer',
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function stats(): HasMany
     {
         return $this->hasMany(PlayerStats::class);
