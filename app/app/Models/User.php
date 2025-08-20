@@ -41,7 +41,7 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return (bool) $this->is_admin;
+        return $this->is_admin;
     }
 
     public function player()

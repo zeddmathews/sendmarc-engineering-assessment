@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { BreadcrumbItem, Game } from '@/types';
 import { getUpcomingGames, getTennisGame, assignPoint, startGame } from '@/api/matches';
 import { Button } from '@/components/ui/button';
 import AdminOnly from '@/components/AdminOnly.vue';
+import GameEndModal from '@/components/GameEndModal.vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Simulate Match', href: '/simulate-match' },
@@ -15,7 +16,7 @@ const upcomingGames = ref<Game[]>([]);
 const selectedGameId = ref<number | undefined>(undefined);
 const tennisGame = ref<Game & any | null>(null);
 const loading = ref(false);
-const loadingGames = ref(true); // Separate loading state for games list
+const loadingGames = ref(true);
 const error = ref<string | null>(null);
 
 const player1Name = computed(() => tennisGame.value?.player1 ? `${tennisGame.value.player1.first_name} ${tennisGame.value.player1.last_name}` : '');
@@ -43,7 +44,7 @@ const matchDateTime = computed(() => {
     const d = String(date.getUTCDate()).padStart(2, '0');
     const h = String(date.getUTCHours()).padStart(2, '0');
     const min = String(date.getUTCMinutes()).padStart(2, '0');
-    return `${d}-${m}-${y} ${h}:${min} UTC`;
+    return `${d}-${m}-${y} ${h}:${min}`;
 });
 
 const canStartGame = computed(() => {
@@ -115,20 +116,21 @@ onMounted(() => {
             <div>
                 <label class="block mb-2 text-sm font-semibold text-green-400">Select Upcoming Game:</label>
 
-                <!-- Loading state for games list -->
                 <div v-if="loadingGames" class="w-full border border-gray-700 rounded-md p-2 bg-gray-800 text-gray-400 text-center">
                     Loading upcoming games...
                 </div>
 
-                <!-- No games available -->
                 <div v-else-if="!loadingGames && upcomingGames.length === 0" class="w-full border border-gray-700 rounded-md p-4 bg-gray-800 text-center">
-                    <p class="text-gray-400 mb-2">No upcoming games found.</p>
+                    <p class="text-gray-400 mb-3">No upcoming games found.</p>
                     <AdminOnly>
-                        <p class="text-sm text-gray-500">Create a new game to get started.</p>
+                        <Link :href="route('games.create')">
+                            <Button class="bg-green-500 hover:bg-green-600 text-gray-900">
+                                Create New Game
+                            </Button>
+                        </Link>
                     </AdminOnly>
                 </div>
 
-                <!-- Games dropdown -->
                 <select
                     v-else
                     v-model="selectedGameId"
@@ -195,5 +197,12 @@ onMounted(() => {
             <div v-if="loading" class="text-center text-gray-400">Loading game details...</div>
             <div v-if="error" class="text-center text-red-600">{{ error }}</div>
         </div>
+
+        <GameEndModal
+            v-if="gameOver && tennisGame"
+            :game="tennisGame"
+            :winner-name="winnerName"
+            @close="selectedGameId = undefined; tennisGame = null"
+        />
     </AppLayout>
 </template>

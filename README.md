@@ -7,15 +7,16 @@ This is a Laravel + Vue.js application for tracking live tennis matches between 
 - Create & manage player profiles
 - Score live tennis games with proper rules (Love → Forty, Deuce, Advantage)
 - Modal on match completion
-- Dashboard with player insights
-- Background job to update stats
+- Background job on match completion to update winner data
+- ~~Dashboard with player insights~~
+- ~~Background job to update stats~~
 - Admin seeded on first run
 - Secure validation & CSRF protection
-- Dockerized setup (PostgreSQL, Redis)
+- Dockerized setup (PostgreSQL, Nginx, PHP-FPM ~~Redis~~)
 
 ## Build process
 **Depends on Docker engine**
-**Install mutagen for live sync**
+**~~Install mutagen for live sync~~**
 
 - Clone the repo 
 - Copy the `.env` file from `.env.example`  
@@ -32,9 +33,9 @@ This is a Laravel + Vue.js application for tracking live tennis matches between 
 - `./vendor/bin/pest` _run tests_
 ## Notes
 
-- Current config build from docker-compose and points to entrypoint.sh to run migrations. Need to add full reset scripts, start, stop, wipe
-- Need to build seeders into docker-compose (add a couple default players to test game logic)
-- Modify db migrations to include player data
+- ~~Current config build from docker-compose and points to entrypoint.sh to run migrations. Need to add full reset scripts, start, stop, wipe~~
+- ~~Need to build seeders into docker-compose (add a couple default players to test game logic)~~
+- ~~Modify db migrations to include player data~~
 
 ## Checklist (remove later)
 **Models & Migrations**
@@ -47,7 +48,7 @@ This is a Laravel + Vue.js application for tracking live tennis matches between 
 - Seed admin player on startup
    - Done
 - Add factories for test data
-   - 
+   - Done
 **Controllers**
 - PlayerController
    - Create/read player profiles

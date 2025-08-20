@@ -1,200 +1,214 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
+import { onMounted, onUnmounted, ref, computed } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { BreadcrumbItem, Game } from '@/types';
-import { getUpcomingGames, getTennisGame, assignPoint, startGame } from '@/api/matches';
 import { Button } from '@/components/ui/button';
-import AdminOnly from '@/components/AdminOnly.vue';
+import { Input } from '@/components/ui/input';
+import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from '@/components/ui/command';
+import type { BreadcrumbItem, Player } from '@/types';
+import { getPlayers } from '@/api/players';
+
+const players = ref<Player[]>([]);
+const search1 = ref('');
+const search2 = ref('');
+const selectedPlayer1 = ref<Player | null>(null);
+const selectedPlayer2 = ref<Player | null>(null);
+const openPlayer1 = ref(false);
+const openPlayer2 = ref(false);
+const player1Ref = ref<HTMLElement | null>(null);
+const player2Ref = ref<HTMLElement | null>(null);
+const loadingPlayers = ref(false);
+
+const handleClickOff = (event: MouseEvent) => {
+    if (player1Ref.value && !player1Ref.value.contains(event.target as Node)) {
+        openPlayer1.value = false;
+    }
+    if (player2Ref.value && !player2Ref.value.contains(event.target as Node)) {
+        openPlayer2.value = false;
+    }
+};
+
+const onFocusPlayer1 = () => {
+    openPlayer1.value = true;
+    openPlayer2.value = false;
+};
+
+const onFocusPlayer2 = () => {
+    openPlayer2.value = true;
+    openPlayer1.value = false;
+};
+
+const form = useForm({
+    played_at: '',
+    winner_id: null as number | null,
+    match_status: 'upcoming',
+    player1_id: null as number | null,
+    player2_id: null as number | null,
+});
+
+const submit = () => {
+    if (!form.player1_id || !form.player2_id) {
+        alert('Please select 2 players');
+        return;
+    }
+    if (form.player1_id === form.player2_id) {
+        alert('Players must be different');
+        return;
+    }
+
+    form.post(route('api.games.store'), {
+        onSuccess: () => {
+            alert('Game created successfully!');
+            form.reset();
+            selectedPlayer1.value = null;
+            selectedPlayer2.value = null;
+            search1.value = '';
+            search2.value = '';
+        },
+    });
+};
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Simulate Match', href: '/simulate-match' },
+    { title: 'Games', href: route('games.index') },
+    { title: 'Create', href: '' },
 ];
 
-const upcomingGames = ref<Game[]>([]);
-const selectedGameId = ref<number | undefined>(undefined);
-const tennisGame = ref<Game & any | null>(null);
-const loading = ref(false);
-const loadingGames = ref(true); // Separate loading state for games list
-const error = ref<string | null>(null);
-
-const player1Name = computed(() => tennisGame.value?.player1 ? `${tennisGame.value.player1.first_name} ${tennisGame.value.player1.last_name}` : '');
-const player2Name = computed(() => tennisGame.value?.player2 ? `${tennisGame.value.player2.first_name} ${tennisGame.value.player2.last_name}` : '');
-
-const player1Score = computed(() => tennisGame.value?.match_status === 'ongoing' ? tennisGame.value?.score?.player1 : '—');
-const player2Score = computed(() => tennisGame.value?.match_status === 'ongoing' ? tennisGame.value?.score?.player2 : '—');
-const gameOver = computed(() => tennisGame.value?.game_over ?? false);
-const winnerName = computed(() => {
-    if (!tennisGame.value?.winner) return null;
-    if (tennisGame.value.player1?.id === tennisGame.value.winner) return player1Name.value;
-    if (tennisGame.value.player2?.id === tennisGame.value.winner) return player2Name.value;
-    return null;
-});
-const displayMatchStatus = computed(() => {
-    if (!tennisGame.value?.match_status) return '';
-    return tennisGame.value.match_status.charAt(0).toUpperCase() + tennisGame.value.match_status.slice(1);
-});
-
-const matchDateTime = computed(() => {
-    if (!tennisGame.value) return '';
-    const date = new Date(tennisGame.value.played_at);
-    const y = date.getUTCFullYear();
-    const m = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const d = String(date.getUTCDate()).padStart(2, '0');
-    const h = String(date.getUTCHours()).padStart(2, '0');
-    const min = String(date.getUTCMinutes()).padStart(2, '0');
-    return `${d}-${m}-${y} ${h}:${min} UTC`;
-});
-
-const canStartGame = computed(() => {
-    if (!tennisGame.value) return false;
-    const now = new Date();
-    const scheduled = new Date(tennisGame.value.played_at);
-    return now >= scheduled;
-});
-
-const fetchUpcomingGames = async () => {
-    loadingGames.value = true;
+onMounted(async () => {
+    loadingPlayers.value = true;
     try {
-        const res = await getUpcomingGames();
-        upcomingGames.value = res.data;
-    } catch (err: any) {
-        error.value = err.message || 'Failed to fetch upcoming games';
+        players.value = await getPlayers();
     } finally {
-        loadingGames.value = false;
+        loadingPlayers.value = false;
     }
-};
-
-const fetchGame = async (gameId: number) => {
-    if (!gameId) return;
-    loading.value = true;
-    try {
-        const res = await getTennisGame(gameId);
-        tennisGame.value = res.data;
-    } catch (err: any) {
-        error.value = err.message || 'Failed to fetch game';
-    } finally {
-        loading.value = false;
-    }
-};
-
-const pointFor = async (playerId: number) => {
-    if (!selectedGameId.value || gameOver.value) return;
-    try {
-        const res = await assignPoint(selectedGameId.value, playerId);
-        tennisGame.value = res.data;
-    } catch (err: any) {
-        error.value = err.message || 'Failed to assign point';
-    }
-};
-
-const startGameNow = async () => {
-    if (!selectedGameId.value) return;
-    try {
-        const res = await startGame(selectedGameId.value);
-        tennisGame.value = res.data;
-    } catch (err: any) {
-        error.value = err.message || 'Failed to start game';
-    }
-};
-
-watch(selectedGameId, (id) => {
-    if (id !== undefined) fetchGame(id);
+    document.addEventListener('click', handleClickOff);
 });
 
-onMounted(() => {
-    fetchUpcomingGames();
-});
+onUnmounted(() => document.removeEventListener('click', handleClickOff));
+
+const filteredPlayers1 = computed(() =>
+    players.value.filter((p) =>
+        `${p.first_name} ${p.last_name}`.toLowerCase().includes(search1.value.toLowerCase())
+    )
+);
+
+const filteredPlayers2 = computed(() =>
+    players.value.filter((p) =>
+        `${p.first_name} ${p.last_name}`.toLowerCase().includes(search2.value.toLowerCase())
+    )
+);
+
+const selectPlayer1 = (player: Player) => {
+    selectedPlayer1.value = player;
+    form.player1_id = player.id;
+    openPlayer1.value = false;
+};
+
+const selectPlayer2 = (player: Player) => {
+    selectedPlayer2.value = player;
+    form.player2_id = player.id;
+    openPlayer2.value = false;
+};
 </script>
 
 <template>
-    <Head title="Simulate Match" />
+    <Head title="Create Game" />
+
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="max-w-2xl mx-auto p-4 space-y-6 text-gray-300">
+        <div class="max-w-lg mx-auto p-6 bg-white dark:bg-gray-900 rounded-lg shadow-md">
+            <h1 class="text-3xl font-bold mb-6 text-green-500 dark:text-green-400">
+                Create a New Game
+            </h1>
 
-            <div>
-                <label class="block mb-2 text-sm font-semibold text-green-400">Select Upcoming Game:</label>
-
-                <div v-if="loadingGames" class="w-full border border-gray-700 rounded-md p-2 bg-gray-800 text-gray-400 text-center">
-                    Loading upcoming games...
+            <form @submit.prevent="submit" class="space-y-6">
+                <div>
+                    <label for="played_at" class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                        Played At (date/time):
+                    </label>
+                    <Input
+                        id="played_at"
+                        type="datetime-local"
+                        v-model="form.played_at"
+                        class="w-full dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700"
+                        required
+                        :class="{ 'border-red-500': form.errors.played_at }"
+                    />
+                    <p v-if="form.errors.played_at" class="text-red-600 text-sm mt-1">
+                        {{ form.errors.played_at }}
+                    </p>
                 </div>
 
-                <div v-else-if="!loadingGames && upcomingGames.length === 0" class="w-full border border-gray-700 rounded-md p-4 bg-gray-800 text-center">
-                    <p class="text-gray-400 mb-3">No upcoming games found.</p>
-                    <AdminOnly>
-                        <Link :href="route('games.create')">
-                            <Button class="bg-green-500 hover:bg-green-600 text-gray-900">
-                                Create New Game
-                            </Button>
-                        </Link>
-                    </AdminOnly>
+                <div ref="player1Ref">
+                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                        Player 1:
+                    </label>
+                    <Command class="border rounded-md dark:bg-gray-800 dark:border-gray-700">
+                        <CommandInput
+                            placeholder="Search player..."
+                            class="dark:placeholder-gray-400 dark:text-gray-200"
+                            :value="selectedPlayer1 ? `${selectedPlayer1.first_name} ${selectedPlayer1.last_name}` : search1"
+                            @focus="onFocusPlayer1"
+                            @input="(e: Event) => search1 = (e.target as HTMLInputElement).value"
+                        />
+                        <CommandList v-if="openPlayer1" class="dark:bg-gray-800">
+                            <CommandEmpty class="dark:text-gray-400">No players found.</CommandEmpty>
+                            <CommandGroup>
+                                <CommandItem
+                                    v-for="player in filteredPlayers1"
+                                    :key="player.id"
+                                    :value="player.id"
+                                    @select="selectPlayer1(player)"
+                                    class="dark:hover:bg-gray-700 dark:text-gray-200"
+                                >
+                                    {{ player.first_name }} {{ player.last_name }}
+                                </CommandItem>
+                            </CommandGroup>
+                        </CommandList>
+                    </Command>
+                    <p v-if="form.errors.player1_id" class="text-red-600 text-sm mt-1">
+                        {{ form.errors.player1_id }}
+                    </p>
                 </div>
 
-                <select
-                    v-else
-                    v-model="selectedGameId"
-                    class="w-full border border-gray-700 rounded-md p-2 bg-gray-800 text-gray-300"
+                <div ref="player2Ref">
+                    <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                        Player 2:
+                    </label>
+                    <Command class="border rounded-md dark:bg-gray-800 dark:border-gray-700">
+                        <CommandInput
+                            placeholder="Search player..."
+                            class="dark:placeholder-gray-400 dark:text-gray-200"
+                            :value="selectedPlayer2 ? `${selectedPlayer2.first_name} ${selectedPlayer2.last_name}` : search2"
+                            @focus="onFocusPlayer2"
+                            @input="(e: Event) => search2 = (e.target as HTMLInputElement).value"
+                        />
+                        <CommandList v-if="openPlayer2" class="dark:bg-gray-800">
+                            <CommandEmpty class="dark:text-gray-400">No players found.</CommandEmpty>
+                            <CommandGroup>
+                                <CommandItem
+                                    v-for="player in filteredPlayers2"
+                                    :key="player.id"
+                                    :value="player.id"
+                                    @select="selectPlayer2(player)"
+                                    class="dark:hover:bg-gray-700 dark:text-gray-200"
+                                >
+                                    {{ player.first_name }} {{ player.last_name }}
+                                </CommandItem>
+                            </CommandGroup>
+                        </CommandList>
+                    </Command>
+                    <p v-if="form.errors.player2_id" class="text-red-600 text-sm mt-1">
+                        {{ form.errors.player2_id }}
+                    </p>
+                </div>
+
+                <Button
+                    type="submit"
+                    class="w-full bg-green-500 hover:bg-green-600 text-white dark:bg-green-600 dark:hover:bg-green-500"
+                    :disabled="form.processing"
                 >
-                    <option :value="undefined" disabled>Select a game</option>
-                    <option
-                        v-for="game in upcomingGames"
-                        :key="game.id"
-                        :value="game.id"
-                        class="bg-gray-800 text-gray-300"
-                    >
-                        {{ game.player1?.first_name }} {{ game.player1?.last_name }} vs {{ game.player2?.first_name }} {{ game.player2?.last_name }}
-                    </option>
-                </select>
-            </div>
-
-            <div v-if="tennisGame" class="space-y-4">
-
-                <AdminOnly>
-                    <div v-if="!canStartGame" class="text-center">
-                        <Button class="bg-green-500 hover:bg-green-600 text-gray-900" @click="startGameNow">
-                            Start Game Now (Admin Override)
-                        </Button>
-                    </div>
-                </AdminOnly>
-
-                <div class="flex space-x-4">
-                    <div class="flex-1 border border-gray-700 rounded-md p-4 text-center bg-gray-800">
-                        <div class="text-lg font-bold text-green-400">{{ player1Name }}</div>
-                        <div class="text-xl font-mono my-2 text-gray-300">{{ player1Score }}</div>
-                        <Button
-                            class="w-full bg-green-500 hover:bg-green-600 text-gray-900"
-                            @click="tennisGame.player1?.id && pointFor(tennisGame.player1.id)"
-                            :disabled="!canStartGame || gameOver"
-                        >
-                            +1 {{ player1Name }}
-                        </Button>
-                    </div>
-
-                    <div class="flex-1 border border-gray-700 rounded-md p-4 text-center bg-gray-800">
-                        <div class="text-lg font-bold text-green-400">{{ player2Name }}</div>
-                        <div class="text-xl font-mono my-2 text-gray-300">{{ player2Score }}</div>
-                        <Button
-                            class="w-full bg-green-500 hover:bg-green-600 text-gray-900"
-                            @click="tennisGame.player2?.id && pointFor(tennisGame.player2.id)"
-                            :disabled="!canStartGame || gameOver"
-                        >
-                            +1 {{ player2Name }}
-                        </Button>
-                    </div>
-                </div>
-
-                <div v-if="gameOver" class="mt-4 text-lg font-bold text-red-600 text-center">
-                    Game Over! Winner: {{ winnerName }}
-                </div>
-
-                <div class="mt-4 text-center text-sm text-gray-400">
-                    <div><strong class="text-green-400">Status:</strong> {{ displayMatchStatus }}</div>
-                    <div><strong class="text-green-400">Scheduled:</strong> {{ matchDateTime }}</div>
-                </div>
-            </div>
-
-            <div v-if="loading" class="text-center text-gray-400">Loading game details...</div>
-            <div v-if="error" class="text-center text-red-600">{{ error }}</div>
+                    {{ form.processing ? 'Creating...' : 'Create Game' }}
+                </Button>
+            </form>
         </div>
     </AppLayout>
 </template>

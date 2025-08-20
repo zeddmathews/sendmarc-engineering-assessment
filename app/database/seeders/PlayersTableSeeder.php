@@ -25,7 +25,6 @@ class PlayersTableSeeder extends Seeder
             ['first_name' => 'Steffi', 'last_name' => 'Graf', 'email' => 'steffi@example.com', 'country' => 'Germany', 'games_won' => 3,'rank' => 'Silver', 'points' => 700],
         ];
 
-
         foreach ($players as $p) {
             $user = User::factory()->create([
                 'name' => "{$p['first_name']}  {$p['last_name']}",
@@ -36,6 +35,7 @@ class PlayersTableSeeder extends Seeder
                     'last_name' => $p['last_name'],
                     'country' => $p['country'],
                     'email' => $p['email'],
+                    'games_won' => $p['games_won'],
                     'rank' => PlayerRank::from($p['rank']),
                     'points' => $p['points'] ?? 0,
                     'user_id' => $user->id,
