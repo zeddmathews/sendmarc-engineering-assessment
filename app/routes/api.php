@@ -1,10 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PlayerController;
-use App\Http\Controllers\GameController;
-use App\Http\Controllers\TennisGameController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\Web\PlayerController;
+use App\Http\Controllers\Web\GameController;
+use App\Http\Controllers\Web\TennisGameController;
+use App\Http\Controllers\Web\UserController;
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::apiResource('players', PlayerController::class)->names([

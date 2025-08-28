@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\PlayerController;
-use App\Http\Controllers\GameController;
+use App\Http\Controllers\Web\PlayerController;
+use App\Http\Controllers\Web\GameController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
