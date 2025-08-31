@@ -5,18 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Models\Game;
 use App\Models\Player;
 use Inertia\Inertia;
-use Inertia\Response;
-use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\Controller;
-
-use App\Actions\Games\StartGame;
-use App\Actions\Games\UpdateGame;
-use App\Actions\Games\DestroyGame;
-use App\Actions\Tennis\AwardPoint;
-
-use App\Http\Requests\GameStoreRequest;
-use App\Http\Requests\GameUpdateRequest;
-use App\Http\Requests\PointAwardRequest;
 
 class GameController extends Controller
 {

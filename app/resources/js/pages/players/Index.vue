@@ -5,8 +5,6 @@ import { ref, onMounted } from 'vue';
 import type { Player, BreadcrumbItem } from '@/types';
 import { Button } from '@/components/ui/button';
 import AdminOnly from '@/components/AdminOnly.vue';
-import { getPlayers } from '@/api/players';
-
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Players', href: route('players.index') },
@@ -19,7 +17,9 @@ const deleting = ref<{ [key: number]: boolean }>({});
 const fetchPlayers = async () => {
     loading.value = true;
     try {
-        players.value = await getPlayers();
+        const response = await fetch(route('api.players.index'), { headers: { Accept: 'application/json' } });
+        const data = await response.json();
+        players.value = data.data;
     } finally {
         loading.value = false;
     }
@@ -50,11 +50,11 @@ onMounted(fetchPlayers);
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-green-400">Players</h1>
-                <AdminOnly>
-                    <Link :href="route('players.create')">
-                        <Button class="bg-green-500 hover:bg-green-600 text-gray-900">Create Player</Button>
-                    </Link>
-                </AdminOnly>
+            <AdminOnly>
+                <Link :href="route('players.create')">
+                    <Button class="bg-green-500 hover:bg-green-600 text-gray-900">Create Player</Button>
+                </Link>
+            </AdminOnly>
         </div>
 
         <table class="w-full table-auto border-collapse border border-gray-700">
@@ -78,10 +78,10 @@ onMounted(fetchPlayers);
                     <td class="border border-gray-700 px-4 py-2 text-gray-300">{{ player.last_name }}</td>
                     <td class="border border-gray-700 px-4 py-2 text-gray-300">{{ player.country ?? '-' }}</td>
                     <td class="border border-gray-700 px-4 py-2 text-gray-300">{{ player.rank ?? '-' }}</td>
-                    <td class="border border-gray-700 px-4 py-2 text-gray-300">{{ player.games_won }}</td>
+                    <td class="border border-gray-700 px-4 py-2 text-gray-300">{{ player.games_won ?? 0 }}</td>
                     <td class="border border-gray-700 px-4 py-2 text-center space-x-2">
                         <AdminOnly>
-                            <Link :href="route('players.edit', { player: player.id })">
+                            <Link :href="route('players.edit', player.id)">
                                 <Button size="sm" variant="outline" class="border-green-400 text-green-400 hover:bg-green-500 hover:text-gray-900">Edit</Button>
                             </Link>
                             <Button size="sm" variant="destructive" class="bg-red-600 hover:bg-red-700" @click="onDelete(player.id)">Delete</Button>

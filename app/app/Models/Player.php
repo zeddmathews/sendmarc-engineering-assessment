@@ -5,21 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use App\Enums\PlayerRank;
 
 class Player extends Model
 {
-    use HasFactory, Notifiable;
-    /**
-     * The attributes that are mass assignable.
-     *
-     *
-     *
-     *@var list<string>
-     *
-     * */
+    use HasFactory;
     protected $fillable = [
         'first_name',
         'last_name',
@@ -42,5 +32,12 @@ class Player extends Model
     public function stats(): HasMany
     {
         return $this->hasMany(PlayerStats::class);
+    }
+
+    public function scopeVisibleTo($query, User $user)
+    {
+        return $user->is_admin
+            ? $query
+            : $query->where('user_id', $user->id);
     }
 }

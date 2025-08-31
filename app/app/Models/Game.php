@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Enums\MatchStatus;
 
 class Game extends Model
 {
@@ -22,6 +23,7 @@ class Game extends Model
         'player1_points' => 'integer',
         'player2_points' => 'integer',
         'played_at' => 'datetime',
+        'match_status' => MatchStatus::class,
     ];
 
 

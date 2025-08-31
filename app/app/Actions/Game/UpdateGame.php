@@ -6,10 +6,8 @@ use App\Models\Game;
 
 class UpdateGame
 {
-    public function handle(Game $game, array $data): Game
+    public function handle(Game $game, array $data): void
     {
         $game->update($data);
-
-        return $game;
     }
 }

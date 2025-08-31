@@ -3,7 +3,8 @@
 namespace App\Http\Requests\Game;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Models\Game;
+use App\Enums\MatchStatus;
+use Illuminate\Validation\Rule;
 
 class GameUpdateRequest extends FormRequest
 {
@@ -17,7 +18,7 @@ class GameUpdateRequest extends FormRequest
         return [
             'played_at' => 'required|date',
             'winner_id' => 'nullable|exists:players,id',
-            'match_status' => 'required|string|in:upcoming,ongoing,completed,cancelled,tied',
+            'match_status' => ['required', Rule::in(array_map(fn($s) => $s->value, MatchStatus::cases()))],
             'player1_id' => 'nullable|exists:players,id',
             'player2_id' => 'nullable|exists:players,id',
             'player1_points' => 'nullable|integer|min:0',

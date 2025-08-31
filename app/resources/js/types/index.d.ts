@@ -45,6 +45,7 @@ export interface Player {
     country: string | null;
     created_at?: string;
     updated_at?: string;
+    user?: User;
 }
 
 export interface PlayerStat {
@@ -83,6 +84,10 @@ export interface User {
     created_at: string;
     updated_at: string;
     is_admin: boolean;
+}
+
+export interface PlayerPageProps extends AppPageProps {
+    users?: User[];
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;

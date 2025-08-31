@@ -25,8 +25,6 @@ class GamePolicy
     public function update(User $user, Game $game): bool
     {
         return $user->is_admin;
-            // || $user->id === $game->player1_id
-            // || $user->id === $game->player2_id;
     }
     public function delete(User $user, Game $game): bool
     {

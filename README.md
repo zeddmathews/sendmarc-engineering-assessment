@@ -27,7 +27,14 @@ This is a Laravel + Vue.js application for tracking live tennis matches between 
 - `chmod +x scripts/01-clean_start.sh`
 - `cd scripts`
 - `./01-clean_start.sh`
-
+**For build without docker**
+- Update .env `DB_HOST=db` -> `DB_HOST=127.0.0.1`
+- `cd app`
+- `psql -U postgres`
+- `CREATE DATABASE tennis;`
+- `php artisan migrate`
+- `php artisan db:seed`
+- `composer run dev`
 **Testing**
 - `./vendor/bin/pest --init` _pest initialization_
 - `./vendor/bin/pest` _run tests_
