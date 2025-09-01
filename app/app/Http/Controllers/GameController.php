@@ -9,6 +9,7 @@ use App\Http\Requests\Game\GameUpdateRequest;
 use App\Http\Resources\GameResource;
 use App\Services\GameService;
 use App\Enums\MatchStatus;
+use App\Http\Requests\Game\PointAssignRequest;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -121,9 +122,9 @@ class GameController extends Controller
             ->with('success', 'Game started successfully.');
     }
 
-    public function assignPoint(Request $request, Game $game)
+    public function assignPoint(PointAssignRequest $request, Game $game)
     {
-        $player = Player::findOrFail($request->input('player'));
+        $player = Player::findOrFail($request->input('player_id'));
         $service = new GameService($game);
         $service->assignPoint($player);
 

@@ -93,7 +93,7 @@ class GameService
         ];
     }
 
-    protected function getDisplayScore(int $playerPoints, int $opponentPoints): string
+    public function getDisplayScore(int $playerPoints, int $opponentPoints): string
     {
         $terms = ['Love', 'Fifteen', 'Thirty', 'Forty'];
 
