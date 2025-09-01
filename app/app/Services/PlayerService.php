@@ -7,25 +7,29 @@ use Illuminate\Support\Arr;
 
 class PlayerService
 {
-    public function createPlayer(array $data, bool $isAdmin = false): Player
+    public function create(array $data, bool $isAdmin = false): Player
     {
         if (! $isAdmin) {
             $data['user_id'] = auth()->id();
         }
+
         $player = Player::create($data);
+
         return $player->fresh()->load('user');
     }
 
-    public function updatePlayer(Player $player, array $data, bool $isAdmin = false): Player
+    public function update(Player $player, array $data, bool $isAdmin = false): Player
     {
         if (! $isAdmin) {
             $data = Arr::except($data, ['rank']);
         }
+
         $player->update($data);
+
         return $player->fresh()->load('user');
     }
 
-    public function deletePlayer(Player $player): void
+    public function delete(Player $player): void
     {
         $player->delete();
     }

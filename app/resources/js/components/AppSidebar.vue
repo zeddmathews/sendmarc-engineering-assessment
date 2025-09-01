@@ -45,7 +45,6 @@ const mainNavItemsRaw: NavItem[] = [
         children: [
             { title: 'View Games', href: route('games.index') },
             { title: 'Create Game', href: route('games.create'), adminOnly: true },
-            // { title: 'Edit Game', href: route('games.edit'), adminOnly: true },
         ],
     },
 ];

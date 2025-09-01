@@ -8,6 +8,22 @@ import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, Command
 import type { BreadcrumbItem, Player, Game } from '@/types';
 import { getPlayers } from '@/api/players';
 
+enum Point {
+    Love = 0,
+    Fifteen = 1,
+    Thirty = 2,
+    Forty = 3,
+    Advantage = 4,
+}
+
+const PointLabels: Record<Point, string> = {
+    [Point.Love]: 'Love',
+    [Point.Fifteen]: 'Fifteen',
+    [Point.Thirty]: 'Thirty',
+    [Point.Forty]: 'Forty',
+    [Point.Advantage]: 'Advantage',
+};
+
 const props = defineProps<{ game: Game }>();
 
 const players = ref<Player[]>([]);
@@ -29,8 +45,9 @@ const handleClickOff = (event: MouseEvent) => {
 const onFocusPlayer1 = () => { openPlayer1.value = true; openPlayer2.value = false; };
 const onFocusPlayer2 = () => { openPlayer2.value = true; openPlayer1.value = false; };
 
+// Form
 const form = useForm({
-    played_at: props.game.played_at,
+    played_at: '',
     winner_id: props.game.winner_id,
     match_status: props.game.match_status,
     player1_id: props.game.player1_id,
@@ -38,6 +55,9 @@ const form = useForm({
     player1_points: props.game.player1_points,
     player2_points: props.game.player2_points,
 });
+
+// Placeholder for played_at
+const playedAtPlaceholder = computed(() => props.game.played_at.slice(0,16));
 
 const selectPlayer1 = (player: Player) => { selectedPlayer1.value = player; form.player1_id = player.id; openPlayer1.value = false; };
 const selectPlayer2 = (player: Player) => { selectedPlayer2.value = player; form.player2_id = player.id; openPlayer2.value = false; };
@@ -49,14 +69,20 @@ const filteredPlayers2 = computed(() =>
     players.value.filter(p => `${p.first_name} ${p.last_name}`.toLowerCase().includes(search2.value.toLowerCase()))
 );
 
+// Submit only changed fields
 const submit = () => {
-    if (!form.player1_id || !form.player2_id) { alert('Please select 2 players'); return; }
-    if (form.player1_id === form.player2_id) { alert('Players must be different'); return; }
+    const payload: any = { ...form };
 
-    form.put(route('games.update', props.game.id), {
-        onSuccess: () => alert('Game updated successfully!'),
-    });
+    // Only update played_at if user changed it
+    if (!form.played_at) delete payload.played_at;
+
+    form.put(route('games.update', props.game.id), {onSuccess: () => alert('Game updated successfully!') });
 };
+
+// Enum labels
+const pointOptions = Object.values(Point)
+    .filter(v => typeof v === 'number') // filter out string keys
+    .map(v => ({ value: v as number, label: PointLabels[v as Point] }));
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Games', href: route('games.index') },
@@ -87,19 +113,21 @@ onUnmounted(() => document.removeEventListener('click', handleClickOff));
 
             <form @submit.prevent="submit" class="space-y-6">
 
+                <!-- Played At -->
                 <div>
                     <label for="played_at" class="block text-sm font-semibold mb-2 text-gray-800 dark:text-gray-100">Played At (date/time):</label>
                     <Input
                         id="played_at"
                         type="datetime-local"
                         v-model="form.played_at"
+                        :placeholder="playedAtPlaceholder"
                         class="w-full dark:bg-gray-800 dark:text-gray-100"
-                        required
                         :class="{ 'border-red-500': form.errors.played_at }"
                     />
                     <p v-if="form.errors.played_at" class="text-red-600 text-sm mt-1">{{ form.errors.played_at }}</p>
                 </div>
 
+                <!-- Player 1 -->
                 <div ref="player1Ref">
                     <label class="block text-sm font-semibold mb-2 text-gray-800 dark:text-gray-100">Player 1:</label>
                     <Command class="border rounded-md dark:border-gray-700">
@@ -124,9 +152,9 @@ onUnmounted(() => document.removeEventListener('click', handleClickOff));
                             </CommandGroup>
                         </CommandList>
                     </Command>
-                    <p v-if="form.errors.player1_id" class="text-red-600 text-sm mt-1">{{ form.errors.player1_id }}</p>
                 </div>
 
+                <!-- Player 2 -->
                 <div ref="player2Ref">
                     <label class="block text-sm font-semibold mb-2 text-gray-800 dark:text-gray-100">Player 2:</label>
                     <Command class="border rounded-md dark:border-gray-700">
@@ -151,9 +179,9 @@ onUnmounted(() => document.removeEventListener('click', handleClickOff));
                             </CommandGroup>
                         </CommandList>
                     </Command>
-                    <p v-if="form.errors.player2_id" class="text-red-600 text-sm mt-1">{{ form.errors.player2_id }}</p>
                 </div>
 
+                <!-- Match Status -->
                 <div>
                     <label class="block text-sm font-semibold mb-2 text-gray-800 dark:text-gray-100">Match Status:</label>
                     <select v-model="form.match_status" class="w-full border rounded-md p-2 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
@@ -165,6 +193,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOff));
                     </select>
                 </div>
 
+                <!-- Winner -->
                 <div>
                     <label class="block text-sm font-semibold mb-2 text-gray-800 dark:text-gray-100">Winner (optional):</label>
                     <select v-model="form.winner_id" class="w-full border rounded-md p-2 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
@@ -174,14 +203,19 @@ onUnmounted(() => document.removeEventListener('click', handleClickOff));
                     </select>
                 </div>
 
+                <!-- Points -->
                 <div class="flex gap-4">
                     <div>
                         <label class="block text-sm font-semibold mb-2 text-gray-800 dark:text-gray-100">Player 1 Points:</label>
-                        <Input type="number" min="0" v-model="form.player1_points" class="w-full dark:bg-gray-800 dark:text-gray-100"/>
+                        <select v-model.number="form.player1_points" class="w-full border rounded-md p-2 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
+                            <option v-for="p in pointOptions" :key="p.value" :value="p.value">{{ p.label }}</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold mb-2 text-gray-800 dark:text-gray-100">Player 2 Points:</label>
-                        <Input type="number" min="0" v-model="form.player2_points" class="w-full dark:bg-gray-800 dark:text-gray-100"/>
+                        <select v-model.number="form.player2_points" class="w-full border rounded-md p-2 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
+                            <option v-for="p in pointOptions" :key="p.value" :value="p.value">{{ p.label }}</option>
+                        </select>
                     </div>
                 </div>
 

@@ -8,7 +8,6 @@ import AdminOnly from '@/components/AdminOnly.vue';
 import type { GamesPageProps, BreadcrumbItem } from '@/types';
 
 const page = usePage<GamesPageProps>();
-
 const games = computed(() => page.props.games ?? []);
 
 const gameIdQuery = ref<string | number | undefined>(undefined);
@@ -34,7 +33,7 @@ const deleteGame = (id: number) => {
 
 	deleting.value[id] = true;
 
-	router.delete(route('api.games.destroy', id), {
+	router.delete(route('games.destroy', id), {
 		preserveState: true,
 		preserveScroll: true,
 		onSuccess: () => {
@@ -47,9 +46,35 @@ const deleteGame = (id: number) => {
 	});
 };
 
+const formatPlayer = (player: any) => {
+	if (!player) return 'N/A';
+	if (player.user) return `${player.first_name} ${player.last_name}`;
+	return `${player.first_name ?? ''} ${player.last_name ?? ''}`.trim() || 'N/A';
+};
+
+const formatWinner = (game: any) => {
+    if (!game.winner_id) return '—';
+    if (game.player1?.id === game.winner_id) return formatPlayer(game.player1);
+    if (game.player2?.id === game.winner_id) return formatPlayer(game.player2);
+    return 'N/A';
+};
+
 const breadcrumbs: BreadcrumbItem[] = [
 	{ title: 'Games', href: route('games.index') }
 ];
+
+const formatDateTime = (game: any) => {
+    const formattedDate = new Intl.DateTimeFormat('en-GB', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                        timeZone: 'UTC'
+                        }).format(new Date(game.played_at))
+    return formattedDate;
+};
 </script>
 
 <template>
@@ -96,11 +121,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 					class="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 rounded shadow hover:shadow-lg cursor-pointer relative transition"
 				>
 					<p class="text-gray-800 dark:text-gray-200"><strong>Game ID:</strong> {{ game.id }}</p>
-					<p class="text-gray-800 dark:text-gray-200"><strong>Played At:</strong> {{ new Date(game.played_at).toLocaleString() }}</p>
-					<p class="text-gray-800 dark:text-gray-200"><strong>Winner ID:</strong> {{ game.winner_id ?? 'N/A' }}</p>
+					<p class="text-gray-800 dark:text-gray-200"><strong>Played At:</strong>{{ formatDateTime(game) }}</p>
+					<p class="text-gray-800 dark:text-gray-200"><strong>Winner:</strong> {{ formatWinner(game) }}</p>
 					<p class="text-gray-800 dark:text-gray-200"><strong>Match Status:</strong> {{ game.match_status ?? 'N/A' }}</p>
-					<p class="text-gray-800 dark:text-gray-200"><strong>Player 1:</strong> {{ game.player1 ? `${game.player1.first_name} ${game.player1.last_name}` : 'N/A' }}</p>
-					<p class="text-gray-800 dark:text-gray-200"><strong>Player 2:</strong> {{ game.player2 ? `${game.player2.first_name} ${game.player2.last_name}` : 'N/A' }}</p>
+					<p class="text-gray-800 dark:text-gray-200"><strong>Player 1:</strong> {{ formatPlayer(game.player1) }}</p>
+					<p class="text-gray-800 dark:text-gray-200"><strong>Player 2:</strong> {{ formatPlayer(game.player2) }}</p>
 
 					<AdminOnly>
 						<div class="mt-4 flex gap-2 justify-end">

@@ -32,6 +32,7 @@ export interface Game {
     player2_points: number;
     created_at?: string;
     updated_at?: string;
+    winner?: Player | null;
 }
 
 export interface Player {

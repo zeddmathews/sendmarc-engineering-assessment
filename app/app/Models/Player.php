@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Enums\PlayerRank;
 
@@ -27,11 +26,6 @@ class Player extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function stats(): HasMany
-    {
-        return $this->hasMany(PlayerStats::class);
     }
 
     public function scopeVisibleTo($query, User $user)

@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Enums\MatchStatus;
 
 class Game extends Model
@@ -46,10 +45,5 @@ class Game extends Model
             'first_name' => 'Unknown',
             'last_name' => 'Player',
         ]);
-    }
-
-    public function playerStats(): HasMany
-    {
-        return $this->hasMany(PlayerStats::class);
     }
 }
