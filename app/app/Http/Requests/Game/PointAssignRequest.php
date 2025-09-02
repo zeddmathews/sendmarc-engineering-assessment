@@ -9,8 +9,6 @@ class PointAssignRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        // Use your policy to determine if the user can update the game.
-        // This is a robust way to handle authorization.
         return $this->user()->can('update', $this->route('game'));
     }
 

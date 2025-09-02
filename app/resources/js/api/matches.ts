@@ -1,13 +1,22 @@
 import http from './http';
+import { Game } from '@/types';
 
-export const getTennisGame = (gameId: number) =>
-    http.get(`/games/${gameId}/play`);
+export async function getUpcomingGames(): Promise<Game[]> {
+    const response = await http.get('/games/upcoming');
+    return response.data.data;
+}
 
-export const assignPoint = (gameId: number, playerId: number) =>
-    http.post(`/games/${gameId}/point`, { player_id: playerId });
+export async function getTennisGame(id: number): Promise<Game> {
+    const response = await http.get(`/games/${id}`);
+    return response.data.data;
+}
 
-export const getUpcomingGames = () =>
-    http.get('/games/upcoming');
+export async function startGame(id: number): Promise<Game> {
+    const response = await http.post(`/games/${id}/start`);
+    return response.data.data;
+}
 
-export const startGame = (gameId: number) =>
-    http.post(`/games/${gameId}/start`);
+export async function assignPoint(id: number, playerId: number): Promise<Game> {
+    const response = await http.post(`/games/${id}/point`, { player_id: playerId });
+    return response.data.data;
+}

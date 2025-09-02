@@ -3,7 +3,7 @@ import { ref, watch, computed } from 'vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { getTennisGame, assignPoint, startGame } from '@/api/matches';
-import type { GamesPageProps, BreadcrumbItem, Game, GameResource } from '@/types';
+import type { GamesPageProps, BreadcrumbItem, Game } from '@/types';
 import { Button } from '@/components/ui/button';
 import AdminOnly from '@/components/AdminOnly.vue';
 import GameEndModal from '@/components/GameEndModal.vue';
@@ -16,14 +16,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 const page = usePage<GamesPageProps>();
 const upcomingGames = computed(() => page.props.games ?? []);
 const selectedGameId = ref<number | null>(null);
-const tennisGame = ref<GameResource | null>(null);
+const tennisGame = ref<Game | null>(null);
 const error = ref<string | null>(null);
 
 const canStartGame = computed(() => {
-    console.log('selectedGameId:', selectedGameId.value);
-    console.log(selectedGameId.value && tennisGame.value?.match_status === 'upcoming' && !tennisGame.value.winner_id);
-    console.log(tennisGame.value['player1']?.id);
-
     return selectedGameId.value && tennisGame.value?.match_status === 'upcoming' && !tennisGame.value.winner_id;
 });
 
@@ -48,18 +44,7 @@ const winnerName = computed(() => {
 });
 
 watch(selectedGameId, async (newId) => {
-    if (newId) {
-        error.value = null;
-        try {
-            const fetchedGame = await getTennisGame(newId);
-            tennisGame.value = fetchedGame.data.data;
-        } catch (err) {
-            console.error(err);
-            error.value = 'Failed to load game details.';
-        }
-    } else {
-        tennisGame.value = null;
-    }
+    tennisGame.value = newId ? await getTennisGame(newId) : null;
 });
 
 const formatPlayerName = (game: Game | null, side: 'player1' | 'player2' | 'winner') => {
@@ -83,7 +68,7 @@ const givePoint = async (player: 'player1' | 'player2') => {
     }
     try {
         const response = await assignPoint(tennisGame.value.id, playerId);
-        tennisGame.value = response.data.data;
+        tennisGame.value = response;
     } catch (err: any) {
         error.value = err.response?.data?.message || 'Failed to assign point.';
     }
@@ -94,7 +79,7 @@ const startSelectedGame = async () => {
 
     try {
         const response = await startGame(selectedGameId.value);
-        tennisGame.value = response.data.data;
+        tennisGame.value = response;
     } catch (err: any) {
         error.value = err.response?.data?.message || 'Failed to start game.';
     }
