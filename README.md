@@ -18,10 +18,12 @@ This is a Laravel + Vue.js application for tracking live tennis matches between 
 - `cd app`
 - `psql -U postgres`
 - `CREATE DATABASE tennis;`
+- `composer install`
 - `php artisan migrate`
 - `php artisan db:seed`
 - `composer run dev`
 **Testing - local**
+- `php artisan test --env=testing tests/Feature/GameManagementTest.php tests/Feature/PlayerManagementTest.php tests/Unit/GameServiceTest.php tests/Feature/AuthTest.php`
 - `php artisan test tests/Feature/GameManagementTest.php tests/Feature/PlayerManagementTest.php tests/Unit/GameServiceTest.php tests/Feature/AuthTest.php`
 **Testing - container**
 - `docker-compose exec db psql -U postgres`
