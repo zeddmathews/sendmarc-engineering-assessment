@@ -26,17 +26,16 @@ class GameService
 
     public function end(): void
     {
-        if ($this->game->match_status !== MatchStatus::Ongoing->value) {
-            return;
-        }
-
+        // If game already has a winner, ensure job is dispatched
         if ($this->game->winner_id) {
-            $this->game->update(['match_status' => MatchStatus::Completed->value]);
-            UpdateGameWon::dispatch($this->game->winner()->first());
+            $this->dispatchWinnerJob();
             return;
         }
 
-        $this->game->update(['match_status' => MatchStatus::Tied->value]);
+        // If no winner yet, mark as tied
+        if ($this->game->match_status === MatchStatus::Ongoing->value) {
+            $this->game->update(['match_status' => MatchStatus::Tied->value]);
+        }
     }
 
     public function destroy(): void
@@ -76,8 +75,24 @@ class GameService
         }
 
         $this->game->save();
+
+        if ($this->game->winner_id) {
+            $this->dispatchWinnerJob();
+        }
     }
 
+    protected function dispatchWinnerJob(): void
+    {
+        $winner = $this->game->winner_id === $this->game->player1_id
+            ? $this->game->player1
+            : $this->game->player2;
+
+        $loser = $winner->id === $this->game->player1_id
+            ? $this->game->player2
+            : $this->game->player1;
+
+        UpdateGameWon::dispatch($this->game, $winner, $loser);
+    }
 
     public function serialize(): array
     {
@@ -97,8 +112,6 @@ class GameService
             'match_status' => Str::ucfirst($this->game->match_status),
         ];
     }
-
-
 
     public function getDisplayScore(int $playerPoints, int $opponentPoints): string
     {
@@ -123,9 +136,6 @@ class GameService
 
         return $terms[$playerPoints] ?? (string) $playerPoints;
     }
-
-
-
 
     public function isGameOver(): bool
     {

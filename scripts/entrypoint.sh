@@ -22,7 +22,7 @@ php artisan route:clear
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
-
+php artisan queue:work --daemon -d
 # Start php-fpm in foreground
 php-fpm -F
 

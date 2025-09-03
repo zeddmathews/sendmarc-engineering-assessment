@@ -21,7 +21,10 @@ This is a Laravel + Vue.js application for tracking live tennis matches between 
 - `composer install`
 - `php artisan migrate`
 - `php artisan db:seed`
+- `mkdir -p storage/framework/views storage/framework/cache`
+- `chmod 777 storage bootstrap/cache`
 - `composer run dev`
+- `http://127.0.0.1:8000`
 **Testing - local**
 - `php artisan test --env=testing tests/Feature/GameManagementTest.php tests/Feature/PlayerManagementTest.php tests/Unit/GameServiceTest.php tests/Feature/AuthTest.php`
 - `php artisan test tests/Feature/GameManagementTest.php tests/Feature/PlayerManagementTest.php tests/Unit/GameServiceTest.php tests/Feature/AuthTest.php`

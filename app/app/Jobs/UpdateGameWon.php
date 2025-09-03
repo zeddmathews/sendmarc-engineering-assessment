@@ -17,27 +17,31 @@ class UpdateGameWon implements ShouldQueue
 
     protected Game $game;
     protected Player $winner;
+    protected Player $loser;
 
-    public function __construct(Game $game, Player $winner)
+    public function __construct(Game $game, Player $winner, Player $loser)
     {
         $this->game = $game;
         $this->winner = $winner;
+        $this->loser = $loser;
     }
 
     public function handle(): void
     {
-        $loser = ($this->game->player1_id === $this->winner->id)
-            ? $this->game->player2
-            : $this->game->player1;
-
         $this->game->update([
             'winner_id' => $this->winner->id,
             'match_status' => MatchStatus::Completed->value,
         ]);
 
-        $this->winner->increment('points', $this->game->player1_points);
+        $winnerPoints = $this->winner->id === $this->game->player1_id
+            ? $this->game->player1_points
+            : $this->game->player2_points;
+        $loserPoints = $this->loser->id === $this->game->player1_id
+            ? $this->game->player2_points
+            : $this->game->player1_points;
+        $this->winner->increment('points', $winnerPoints);
         $this->winner->increment('games_won');
 
-        $loser->increment('points', $this->game->player2_points);
+        $this->loser->increment('points', $loserPoints);
     }
 }
