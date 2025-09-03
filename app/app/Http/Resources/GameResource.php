@@ -29,7 +29,7 @@ class GameResource extends JsonResource
             'can_edit' => Auth::user()?->can('update', $this->resource) ?? false,
             'can_delete' => Auth::user()?->can('delete', $this->resource) ?? false,
             'can_award_points' => Auth::user()?->can('awardPoints', $this->resource) ?? false,
-            'game_over' => '',
+            'game_over' => $service->isGameOver(),
         ];
     }
 }

@@ -19,10 +19,6 @@ class PlayerController extends Controller
         $this->service = $service;
     }
 
-    // ------------------------
-    // Web (Inertia) Endpoints
-    // ------------------------
-
     public function indexPage()
     {
         return Inertia::render('players/Index', [
@@ -90,10 +86,6 @@ class PlayerController extends Controller
         return redirect()->route('players.index')
             ->with('success', 'Player deleted successfully.');
     }
-
-    // ------------------------
-    // API Endpoints
-    // ------------------------
 
     public function index()
     {

@@ -24,11 +24,6 @@ const mainNavItemsRaw: NavItem[] = [
         icon: PlaySquare,
     },
     {
-        title: 'Match History',
-        href: route('matches'),
-        icon: History,
-    },
-    {
         title: 'Rankings',
         href: route('rank'),
         icon: Trophy,
@@ -66,18 +61,6 @@ const mainNavItems = computed(() => {
     });
 });
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Github Repo',
-        href: 'https://github.com/laravel/vue-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#vue',
-        icon: BookOpen,
-    },
-];
 </script>
 
 <template>
@@ -99,7 +82,6 @@ const footerNavItems: NavItem[] = [
         </SidebarContent>
 
         <SidebarFooter>
-            <NavFooter :items="footerNavItems" />
             <NavUser />
         </SidebarFooter>
     </Sidebar>

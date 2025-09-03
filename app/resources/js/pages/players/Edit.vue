@@ -9,10 +9,8 @@ const page = usePage<PlayerPageProps>();
 const authUser = page.props.auth.user as User;
 const isAdmin = authUser.is_admin === true;
 
-// Only defined for edit
 const player = page.props.player as Player | null;
 
-// Users list only relevant for admin create
 const users = ref<User[]>([]);
 
 onMounted(() => {
@@ -21,7 +19,6 @@ onMounted(() => {
     }
 });
 
-// Initialize form
 const form = useForm({
     first_name: player?.first_name ?? '',
     last_name: player?.last_name ?? '',
@@ -31,7 +28,6 @@ const form = useForm({
     user_id: player?.user?.id ?? (isAdmin ? '' : authUser.id),
 });
 
-// Auto-fill first/last/email when admin selects a user (only relevant for create)
 if (!player && isAdmin) {
     watch(() => form.user_id, (newId) => {
         const selectedUser = users.value.find(u => u.id === newId);

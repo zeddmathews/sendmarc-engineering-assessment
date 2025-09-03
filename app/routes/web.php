@@ -24,7 +24,7 @@ Route::middleware(['auth:sanctum', 'verified', 'player.exists'])->group(function
 Route::middleware(['auth:sanctum', 'admin', 'verified'])->group(function () {
     Route::get('/games/create', [GameController::class, 'create'])->name('games.create');
     Route::get('/games/{game}/edit', [GameController::class, 'edit'])->name('games.edit');
-    Route::get('/play/{game}', [GameController::class, 'show'])->name('play.show'); // Play page
+    Route::get('/play/{game}', [GameController::class, 'show'])->name('play.show');
 
     Route::post('/games', [GameController::class, 'store'])->name('games.store');
     Route::put('/games/{game}', [GameController::class, 'update'])->name('games.update');

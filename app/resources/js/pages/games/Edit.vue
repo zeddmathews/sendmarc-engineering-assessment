@@ -45,7 +45,6 @@ const handleClickOff = (event: MouseEvent) => {
 const onFocusPlayer1 = () => { openPlayer1.value = true; openPlayer2.value = false; };
 const onFocusPlayer2 = () => { openPlayer2.value = true; openPlayer1.value = false; };
 
-// Form
 const form = useForm({
     played_at: '',
     winner_id: props.game.winner_id,
@@ -56,7 +55,6 @@ const form = useForm({
     player2_points: props.game.player2_points,
 });
 
-// Placeholder for played_at
 const playedAtPlaceholder = computed(() => props.game.played_at.slice(0,16));
 
 const selectPlayer1 = (player: Player) => { selectedPlayer1.value = player; form.player1_id = player.id; openPlayer1.value = false; };
@@ -69,19 +67,16 @@ const filteredPlayers2 = computed(() =>
     players.value.filter(p => `${p.first_name} ${p.last_name}`.toLowerCase().includes(search2.value.toLowerCase()))
 );
 
-// Submit only changed fields
 const submit = () => {
     const payload: any = { ...form };
 
-    // Only update played_at if user changed it
     if (!form.played_at) delete payload.played_at;
 
     form.put(route('games.update', props.game.id), {onSuccess: () => alert('Game updated successfully!') });
 };
 
-// Enum labels
 const pointOptions = Object.values(Point)
-    .filter(v => typeof v === 'number') // filter out string keys
+    .filter(v => typeof v === 'number')
     .map(v => ({ value: v as number, label: PointLabels[v as Point] }));
 
 const breadcrumbs: BreadcrumbItem[] = [

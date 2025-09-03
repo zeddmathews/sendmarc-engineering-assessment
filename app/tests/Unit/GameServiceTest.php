@@ -26,22 +26,21 @@ test('assignPoint correctly increments player points', function () {
 
     expect($this->game->player1_points)->toBe(1);
     expect($this->game->player2_points)->toBe(0);
+    expect($this->service->isGameOver())->toBeFalse();
 });
 
-test('assignPoint correctly sets a winner when a player reaches 4 points with a two-point lead', function () {
-    $player1 = $this->game->player1()->first();
-    $player2 = $this->game->player2()->first();
+test('assignPoint correctly sets a winner with two-point lead', function () {
+    $player1 = $this->game->player1;
+    $player2 = $this->game->player2;
 
     $this->game->update(['player1_points' => 3, 'player2_points' => 3]);
 
     $this->service->assignPoint($player1);
-    expect($this->game->player1_points)->toBe(4);
-    expect($this->game->player2_points)->toBe(3);
-    expect($this->game->winner_id)->toBeNull();
+    expect($this->service->getDisplayScore($this->game->player1_points, $this->game->player2_points))->toBe('Advantage');
+    expect($this->service->isGameOver())->toBeFalse();
 
     $this->service->assignPoint($player1);
-    expect($this->game->player1_points)->toBe(5);
-    expect($this->game->player2_points)->toBe(3);
+    expect($this->service->isGameOver())->toBeTrue();
     expect($this->game->winner_id)->toBe($player1->id);
 });
 
@@ -50,23 +49,27 @@ test('getDisplayScore returns "Love All" when both players have 0 points', funct
     expect($score)->toBe('Love All');
 });
 
-test('getDisplayScore returns the correct score for normal points', function () {
-    $score = $this->service->getDisplayScore(1, 0);
-    expect($score)->toBe('Fifteen');
-
-    $score = $this->service->getDisplayScore(2, 1);
-    expect($score)->toBe('Thirty');
-
-    $score = $this->service->getDisplayScore(3, 2);
-    expect($score)->toBe('Forty');
+test('getDisplayScore returns normal scores for 1-3 points', function () {
+    expect($this->service->getDisplayScore(1, 0))->toBe('Fifteen');
+    expect($this->service->getDisplayScore(2, 1))->toBe('Thirty');
+    expect($this->service->getDisplayScore(3, 2))->toBe('Forty');
 });
 
-test('getDisplayScore returns "Advantage" when a player has a one-point lead after deuce', function () {
-    expect($this->service->getDisplayScore(4, 3))->toBe('Advantage');
-    expect($this->service->getDisplayScore(5, 4))->toBe('Advantage');
-});
-
-test('getDisplayScore returns "Deuce" when both players have 3 or more points and are tied', function () {
+test('getDisplayScore handles Deuce correctly', function () {
     expect($this->service->getDisplayScore(3, 3))->toBe('Deuce');
     expect($this->service->getDisplayScore(4, 4))->toBe('Deuce');
+    expect($this->service->getDisplayScore(5, 5))->toBe('Deuce');
+});
+
+test('getDisplayScore handles Advantage correctly', function () {
+    expect($this->service->getDisplayScore(4, 3))->toBe('Advantage');
+    expect($this->service->getDisplayScore(5, 4))->toBe('Advantage');
+    expect($this->service->getDisplayScore(6, 5))->toBe('Advantage');
+});
+
+test('getDisplayScore handles back-and-forth Deuce-Advantage', function () {
+    expect($this->service->getDisplayScore(3, 3))->toBe('Deuce');
+    expect($this->service->getDisplayScore(4, 3))->toBe('Advantage');
+    expect($this->service->getDisplayScore(4, 4))->toBe('Deuce');
+    expect($this->service->getDisplayScore(5, 4))->toBe('Advantage');
 });

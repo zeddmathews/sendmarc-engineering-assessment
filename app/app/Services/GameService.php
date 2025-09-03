@@ -61,18 +61,23 @@ class GameService
             $this->game->player2_points++;
         }
 
-        $diff = $this->game->player1_points - $this->game->player2_points;
+        $p1 = $this->game->player1_points;
+        $p2 = $this->game->player2_points;
+        $diff = $p1 - $p2;
 
-        if ($this->game->player1_points >= 4 && $diff >= 2) {
+        if ($p1 >= 4 && $diff >= 2) {
             $this->game->winner_id = $this->game->player1_id;
             $this->game->match_status = MatchStatus::Completed->value;
-        } elseif ($this->game->player2_points >= 4 && $diff <= -2) {
+        } elseif ($p2 >= 4 && $diff <= -2) {
             $this->game->winner_id = $this->game->player2_id;
             $this->game->match_status = MatchStatus::Completed->value;
+        } else {
+            $this->game->match_status = MatchStatus::Ongoing->value;
         }
 
         $this->game->save();
     }
+
 
     public function serialize(): array
     {
@@ -93,12 +98,14 @@ class GameService
         ];
     }
 
+
+
     public function getDisplayScore(int $playerPoints, int $opponentPoints): string
     {
         $terms = ['Love', 'Fifteen', 'Thirty', 'Forty'];
 
         if ($playerPoints < 3 && $opponentPoints < 3) {
-            return ($playerPoints === $opponentPoints)
+            return $playerPoints === $opponentPoints
                 ? $terms[$playerPoints] . ' All'
                 : $terms[$playerPoints];
         }
@@ -107,12 +114,17 @@ class GameService
             if ($playerPoints === $opponentPoints) {
                 return 'Deuce';
             }
-
-            return ($playerPoints > $opponentPoints) ? 'Advantage' : 'Advantage'; // always shows Advantage for leader
+            return $playerPoints > $opponentPoints ? 'Advantage' : 'Forty';
         }
 
-        return $terms[$playerPoints] ?? 'Forty';
+        if ($playerPoints >= 3 && $playerPoints > $opponentPoints) {
+            return 'Forty';
+        }
+
+        return $terms[$playerPoints] ?? (string) $playerPoints;
     }
+
+
 
 
     public function isGameOver(): bool

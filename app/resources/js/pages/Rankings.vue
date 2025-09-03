@@ -23,7 +23,6 @@ const fetchPlayers = async () => {
 
 onMounted(fetchPlayers);
 
-// Sort players descending by points
 const rankedPlayers = computed(() =>
     [...players.value].sort((a, b) => (b.points ?? 0) - (a.points ?? 0))
 );
