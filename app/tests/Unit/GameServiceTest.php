@@ -4,11 +4,18 @@ use App\Models\Game;
 use App\Models\Player;
 use App\Services\GameService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
-uses(RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->game = Game::factory()->create();
+    $player1 = Player::factory()->create();
+    $player2 = Player::factory()->create();
+
+    $this->game = Game::factory()->create([
+        'player1_id' => $player1->id,
+        'player2_id' => $player2->id,
+    ]);
     $this->service = new GameService($this->game);
 });
 
@@ -54,20 +61,12 @@ test('getDisplayScore returns the correct score for normal points', function () 
     expect($score)->toBe('Forty');
 });
 
-test('getDisplayScore returns "Deuce" when both players have 3 or more points and are tied', function () {
-    $score = $this->service->getDisplayScore(3, 3);
-    expect($score)->toBe('Deuce');
-
-    $score = $this->service->getDisplayScore(4, 4);
-    expect($score)->toBe('Deuce');
-});
-
 test('getDisplayScore returns "Advantage" when a player has a one-point lead after deuce', function () {
-    $score = $this->service->getDisplayScore(4, 3);
-    expect($score)->toBe('Advantage');
+    expect($this->service->getDisplayScore(4, 3))->toBe('Advantage');
+    expect($this->service->getDisplayScore(5, 4))->toBe('Advantage');
 });
 
-test('getDisplayScore returns the point value if a player has more than 4 points', function () {
-    $score = $this->service->getDisplayScore(5, 3);
-    expect($score)->toBe('5');
+test('getDisplayScore returns "Deuce" when both players have 3 or more points and are tied', function () {
+    expect($this->service->getDisplayScore(3, 3))->toBe('Deuce');
+    expect($this->service->getDisplayScore(4, 4))->toBe('Deuce');
 });

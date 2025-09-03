@@ -11,6 +11,8 @@ use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\postJson;
 
+uses(RefreshDatabase::class);
+
 beforeEach(function () {
     $this->user = User::factory()->create(['is_admin' => true]);
 });
@@ -28,7 +30,7 @@ test('an admin can create a new game via the API', function () {
         'match_status' => MatchStatus::Upcoming->value,
     ];
 
-    $response = $this->postJson('api.games.store', $gameData);
+    $response = $this->postJson(route('api.games.store', $gameData));
 
     $response->assertStatus(201);
 
@@ -42,8 +44,8 @@ test('an admin can create a new game via the API', function () {
 
     $response->assertJson(
         fn ($json) => $json->where('data.id', $game->id)
-            ->where('data.player1_id', $player1->id)
-            ->where('data.player2_id', $player2->id)
+            ->where('data.player1.id', $player1->id)
+            ->where('data.player2.id', $player2->id)
             ->where('data.match_status', MatchStatus::Upcoming->value)
             ->etc()
     );
@@ -126,7 +128,7 @@ test('a game is completed and a winner is declared', function () {
         'player1_id' => $player1->id,
         'player2_id' => $player2->id,
         'match_status' => MatchStatus::Ongoing->value,
-        'player1_points' => 2,
+        'player1_points' => 3,
         'player2_points' => 0,
     ]);
 
@@ -140,12 +142,14 @@ test('a game is completed and a winner is declared', function () {
         'id' => $game->id,
         'match_status' => MatchStatus::Completed->value,
         'winner_id' => $player1->id,
-        'player1_points' => 3,
+        'player1_points' => 4,
         'player2_points' => 0,
     ]);
 });
 
 test('a user can fetch the details for a specific game', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user, 'sanctum');
     $game = Game::factory()->create();
 
     $response = getJson(route('api.games.show', $game->id));
@@ -160,6 +164,7 @@ test('a user can fetch the details for a specific game', function () {
 });
 
 test('the upcoming games endpoint returns the correct games', function () {
+    actingAs($this->user, 'sanctum');
     $upcomingGame1 = Game::factory()->create(['played_at' => now()->addHours(1), 'match_status' => MatchStatus::Upcoming->value]);
     $upcomingGame2 = Game::factory()->create(['played_at' => now()->addHours(2), 'match_status' => MatchStatus::Upcoming->value]);
 

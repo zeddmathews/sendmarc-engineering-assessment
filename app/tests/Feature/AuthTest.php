@@ -6,6 +6,9 @@ use App\Models\Player;
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\postJson;
 use function Pest\Laravel\actingAs;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
 
 test('unauthenticated users cannot access protected routes', function () {
     $player = Player::factory()->create();
@@ -35,7 +38,7 @@ test('non-admin users cannot access admin-only routes', function () {
     $player1 = Player::factory()->create();
     $player2 = Player::factory()->create();
 
-    actingAs($this->$user, 'sanctum');
+    $this->actingAs($user, 'sanctum');
 
     $gameData = [
         'player1_id' => $player1->id,

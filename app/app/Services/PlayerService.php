@@ -12,7 +12,7 @@ class PlayerService
         if (! $isAdmin) {
             $data['user_id'] = auth()->id();
         }
-
+        
         $player = Player::create($data);
 
         return $player->fresh()->load('user');

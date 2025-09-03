@@ -15,7 +15,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     ]);
 
     Route::get('games', [GameController::class, 'index'])->name('api.games.index');
-    Route::get('games/upcoming', [GameController::class, 'upcomingGames'])->name('api.games.upcoming');
+    Route::get('games/upcoming', [GameController::class, 'simulate'])->name('api.games.upcoming');
     Route::get('games/{game}', [GameController::class, 'show'])->name('api.games.show');
 
     Route::middleware(['admin'])->group(function () {

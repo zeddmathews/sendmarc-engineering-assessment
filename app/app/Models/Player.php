@@ -9,13 +9,15 @@ use App\Enums\PlayerRank;
 class Player extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'first_name',
         'last_name',
         'email',
         'rank',
         'country',
-        'points'
+        'points',
+        'user_id',
     ];
 
     protected $casts = [

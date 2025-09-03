@@ -53,7 +53,7 @@ class GameController extends Controller
         $service = new GameService($game);
 
         if ($request->wantsJson()) {
-            return new GameResource($game->fresh()->load(['player1.user', 'player2.user']));
+            return (new GameResource($game->fresh()->load(['player1.user', 'player2.user'])))->response()->setStatusCode(201);
         }
 
         return redirect()->route('games.index')

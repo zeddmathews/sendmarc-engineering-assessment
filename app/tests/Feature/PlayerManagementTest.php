@@ -13,18 +13,20 @@ use function Pest\Laravel\getJson;
 use function Pest\Laravel\postJson;
 use function Pest\Laravel\putJson;
 
+uses(RefreshDatabase::class);
+
 beforeEach(function () {
     $this->user = User::factory()->create(['is_admin' => true]);
 });
 
 test('a player can be created with an associated user', function () {
     assertDatabaseCount('players', 0);
-    assertDatabaseCount('users', 0);
+    assertDatabaseCount('users', 1);
 
     $player = Player::factory()->withUser()->create();
 
     assertDatabaseCount('players', 1);
-    assertDatabaseCount('users', 1);
+    assertDatabaseCount('users', 2);
 
     assertDatabaseHas('players', [
         'id' => $player->id,
@@ -34,11 +36,12 @@ test('a player can be created with an associated user', function () {
 
 test('an admin can create a new player via the API', function () {
     actingAs($this->user, 'sanctum');
-
+    $user = User::factory()->create();
     $playerData = [
         'first_name' => 'John',
         'last_name' => 'Doe',
-        'jersey_number' => 10,
+        'email' => $this->user->email,
+        'user_id' => $user->id,
     ];
 
     $response = postJson(route('api.players.store'), $playerData);
@@ -64,7 +67,6 @@ test('an admin can update a player via the API', function () {
     $updatedData = [
         'first_name' => 'Jane',
         'last_name' => 'Smith',
-        'jersey_number' => 22,
     ];
 
     $response = putJson(route('api.players.update', $player->id), $updatedData);
@@ -75,7 +77,6 @@ test('an admin can update a player via the API', function () {
         'id' => $player->id,
         'first_name' => 'Jane',
         'last_name' => 'Smith',
-        'jersey_number' => 22,
     ]);
 
     $response->assertJson(
@@ -100,7 +101,8 @@ test('an admin can delete a player via the API', function () {
     assertDatabaseCount('players', 0);
 });
 
-test('a user can fetch a specific player via the API', function () {
+test('an admin user can fetch a specific player via the API', function () {
+    actingAs($this->user, 'sanctum');
     $player = Player::factory()->create();
 
     $response = getJson(route('api.players.show', $player->id));
@@ -113,7 +115,8 @@ test('a user can fetch a specific player via the API', function () {
     );
 });
 
-test('a user can fetch all players via the API', function () {
+test('an admin user can fetch all players via the API', function () {
+    actingAs($this->user, 'sanctum');
     $players = Player::factory()->count(3)->create();
 
     $response = getJson(route('api.players.index'));

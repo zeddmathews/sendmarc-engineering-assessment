@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Enums\MatchStatus;
+use App\Models\Game;
 use App\Models\Player;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -13,16 +15,29 @@ class UpdateGameWon implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected Player $player;
+    protected Game $game;
+    protected Player $winner;
 
-    public function __construct(Player $player)
+    public function __construct(Game $game, Player $winner)
     {
-        $this->player = $player;
+        $this->game = $game;
+        $this->winner = $winner;
     }
 
     public function handle(): void
     {
-        
-        $this->player->increment('games_won');
+        $loser = ($this->game->player1_id === $this->winner->id)
+            ? $this->game->player2
+            : $this->game->player1;
+
+        $this->game->update([
+            'winner_id' => $this->winner->id,
+            'match_status' => MatchStatus::Completed->value,
+        ]);
+
+        $this->winner->increment('points', $this->game->player1_points);
+        $this->winner->increment('games_won');
+
+        $loser->increment('points', $this->game->player2_points);
     }
 }

@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Enums\MatchStatus;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Game extends Model
 {
+    use HasFactory;
+    
     protected $fillable = [
         'played_at',
         'winner_id',

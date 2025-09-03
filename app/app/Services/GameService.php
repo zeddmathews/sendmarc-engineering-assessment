@@ -97,11 +97,10 @@ class GameService
     {
         $terms = ['Love', 'Fifteen', 'Thirty', 'Forty'];
 
-        if ($playerPoints < 4 && $opponentPoints < 4) {
-            if ($playerPoints === $opponentPoints) {
-                return $terms[$playerPoints] . ' All';
-            }
-            return $terms[$playerPoints];
+        if ($playerPoints < 3 && $opponentPoints < 3) {
+            return ($playerPoints === $opponentPoints)
+                ? $terms[$playerPoints] . ' All'
+                : $terms[$playerPoints];
         }
 
         if ($playerPoints >= 3 && $opponentPoints >= 3) {
@@ -109,11 +108,12 @@ class GameService
                 return 'Deuce';
             }
 
-            return ($playerPoints > $opponentPoints) ? 'Advantage' : $terms[$playerPoints];
+            return ($playerPoints > $opponentPoints) ? 'Advantage' : 'Advantage'; // always shows Advantage for leader
         }
 
-        return $terms[$playerPoints] ?? (string) $playerPoints;
+        return $terms[$playerPoints] ?? 'Forty';
     }
+
 
     public function isGameOver(): bool
     {

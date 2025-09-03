@@ -122,7 +122,7 @@ class PlayerController extends Controller
             $request->user()->is_admin
         );
 
-        return new PlayerResource($player);
+        return (new PlayerResource($player))->response()->setStatusCode(201);
     }
 
     public function update(PlayerUpdateRequest $request, Player $player)
