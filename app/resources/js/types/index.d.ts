@@ -32,6 +32,15 @@ export interface Game {
     player2_points: number;
     created_at?: string;
     updated_at?: string;
+    winner?: Player | null;
+    can_edit?: boolean;
+    can_delete?: boolean;
+    can_award_points?: boolean;
+    display_scores: {
+        player1: string;
+        player2: string;
+    };
+    game_over?: boolean;
 }
 
 export interface Player {
@@ -45,26 +54,12 @@ export interface Player {
     country: string | null;
     created_at?: string;
     updated_at?: string;
-}
-
-export interface PlayerStat {
-    id: number;
-    player_id: number;
-    game_id: number;
-    aces: number;
-    double_faults: number;
-    first_serve_in: number;
-    first_serve_out: number;
-    points_won: number;
-    break_points_won: number;
-    created_at?: string;
-    updated_at?: string;
+    user?: User;
 }
 
 export interface GamesPageProps extends AppPageProps {
     games: Game[];
 }
-
 
 export type AppPageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
     name: string;
@@ -83,6 +78,10 @@ export interface User {
     created_at: string;
     updated_at: string;
     is_admin: boolean;
+}
+
+export interface PlayerPageProps extends AppPageProps {
+    users?: User[];
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;

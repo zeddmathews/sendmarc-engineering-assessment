@@ -6,6 +6,7 @@ use App\Models\Game;
 use App\Models\Player;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
+use App\Enums\MatchStatus;
 
 class GamesSeeder extends Seeder
 {
@@ -27,7 +28,7 @@ class GamesSeeder extends Seeder
             'played_at' => Carbon::now()->addDays(2),
             'player1_id' => $p1->id,
             'player2_id' => $p2->id,
-            'match_status' => 'upcoming',
+            'match_status' => MatchStatus::Upcoming->value,
         ]);
 
         [$p1, $p2] = $pickPlayers();
@@ -37,7 +38,7 @@ class GamesSeeder extends Seeder
             'player2_id' => $p2->id,
             'player1_points' => 30,
             'player2_points' => 15,
-            'match_status' => 'ongoing',
+            'match_status' => MatchStatus::Ongoing->value,
         ]);
 
         [$p1, $p2] = $pickPlayers();
@@ -51,7 +52,7 @@ class GamesSeeder extends Seeder
             'player1_points' => $winner->id === $p1->id ? 40 : 20,
             'player2_points' => $winner->id === $p2->id ? 40 : 20,
             'winner_id' => $winner->id,
-            'match_status' => 'completed',
+            'match_status' => MatchStatus::Completed->value,
         ]);
 
         [$p1, $p2] = $pickPlayers();
@@ -64,7 +65,7 @@ class GamesSeeder extends Seeder
             'player1_points' => rand(20, 40),
             'player2_points' => rand(20, 40),
             'winner_id' => $winner->id,
-            'match_status' => 'completed',
+            'match_status' => MatchStatus::Completed->value,
         ]);
     }
 }

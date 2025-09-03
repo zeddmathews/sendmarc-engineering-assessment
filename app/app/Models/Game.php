@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Enums\MatchStatus;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Game extends Model
 {
+    use HasFactory;
+    
     protected $fillable = [
         'played_at',
         'winner_id',
@@ -22,6 +25,7 @@ class Game extends Model
         'player1_points' => 'integer',
         'player2_points' => 'integer',
         'played_at' => 'datetime',
+        'match_status' => MatchStatus::class,
     ];
 
 
@@ -44,10 +48,5 @@ class Game extends Model
             'first_name' => 'Unknown',
             'last_name' => 'Player',
         ]);
-    }
-
-    public function playerStats(): HasMany
-    {
-        return $this->hasMany(PlayerStats::class);
     }
 }

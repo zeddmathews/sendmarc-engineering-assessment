@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\GameController;
-use App\Http\Controllers\TennisGameController;
 use App\Http\Controllers\UserController;
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
@@ -16,17 +15,19 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     ]);
 
     Route::get('games', [GameController::class, 'index'])->name('api.games.index');
-    Route::get('games/upcomings', [GameController::class, 'upcomingGames'])->name('api.games.upcomings');
-    Route::post('games/{game}/start', [GameController::class, 'start'])->name('api.games.start');
+    Route::get('games/upcoming', [GameController::class, 'simulate'])->name('api.games.upcoming');
     Route::get('games/{game}', [GameController::class, 'show'])->name('api.games.show');
-
-    Route::get('simulate-match/{game}', [TennisGameController::class, 'show'])->name('api.simulate.show');
-    Route::post('simulate-match/{game}/point', [TennisGameController::class, 'point'])->name('api.sumlate.point');
 
     Route::middleware(['admin'])->group(function () {
         Route::post('games', [GameController::class, 'store'])->name('api.games.store');
         Route::put('games/{game}', [GameController::class, 'update'])->name('api.games.update');
-        Route::delete('games/{game}', [GameController::class, 'destroy'])->name('api.games.destroy');
+
+        Route::post('games/{game}/start', [GameController::class, 'start'])->name('api.games.start');
+        Route::post('games/{game}/point', [GameController::class, 'assignPoint'])->name('api.games.assignPoint');
+        Route::post('games/{game}/end', [GameController::class, 'end'])->name('api.games.end');
+
+        Route::get('games/{game}/play', [GameController::class, 'show'])->name('api.games.play');
+
         Route::get('users', [UserController::class, 'index'])->name('api.users.index');
     });
 });

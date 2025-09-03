@@ -30,7 +30,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN if [ -f composer.json ]; then composer install --no-progress --no-interaction; fi
 
 RUN npm install -g vite
-# RUN npm install && npm run dev
 
 COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN dos2unix /usr/local/bin/entrypoint.sh && chmod +x /usr/local/bin/entrypoint.sh

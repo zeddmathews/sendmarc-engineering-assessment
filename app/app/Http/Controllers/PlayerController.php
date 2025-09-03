@@ -3,84 +3,139 @@
 namespace App\Http\Controllers;
 
 use App\Models\Player;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+use App\Models\User;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\Player\PlayerStoreRequest;
+use App\Http\Requests\Player\PlayerUpdateRequest;
+use App\Http\Resources\PlayerResource;
+use App\Services\PlayerService;
 
 class PlayerController extends Controller
 {
-    public function index()
+    protected PlayerService $service;
+
+    public function __construct(PlayerService $service)
     {
-        return response()->json(Player::all());
+        $this->service = $service;
     }
+
     public function indexPage()
     {
-        return Inertia::render('players/Index');
+        return Inertia::render('players/Index', [
+            'players' => PlayerResource::collection(
+                Player::with('user')->get()
+            )->resolve(),
+        ]);
     }
 
     public function createPage()
     {
-        return Inertia::render('players/Create');
+        $users = auth()->user()->is_admin
+            ? User::where('is_admin', false)
+                ->whereDoesntHave('player')
+                ->select('id', 'name', 'email')
+                ->get()
+            : collect();
+
+        return Inertia::render('players/Create', [
+            'users' => $users,
+        ]);
     }
 
     public function editPage(Player $player)
     {
-        return Inertia::render('players/Edit', ['player' => $player]);
+        return Inertia::render('players/Edit', [
+            'player' => (new PlayerResource($player->load('user')))->resolve(),
+            'is_admin' => auth()->user()->is_admin,
+        ]);
     }
 
-    public function store(Request $request)
+    public function storeWeb(PlayerStoreRequest $request)
     {
-        $data = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:players,email',
-            'rank' => ['nullable', Rule::in(['Silver', 'Gold', 'Platinum'])],
-            'country' => 'nullable|string|max:255',
-            'points' => 'nullable|integer|min:0',
-        ]);
+        $this->authorize('create', Player::class);
 
-        if (!$request->user()->is_admin) {
-            $data['email'] = $request->user()->email;
-        }
+        $this->service->create(
+            $request->validated(),
+            $request->user()->is_admin
+        );
 
-        $data['user_id'] = $request->user()->id;
+        return redirect()->route('players.index')
+            ->with('success', 'Player created successfully.');
+    }
 
-        Player::create($data);
+    public function updateWeb(PlayerUpdateRequest $request, Player $player)
+    {
+        $this->authorize('update', $player);
 
-        return to_route('dashboard');
+        $this->service->update(
+            $player,
+            $request->validated(),
+            $request->user()->is_admin
+        );
+
+        return redirect()->route('players.index')
+            ->with('success', 'Player updated successfully.');
+    }
+
+    public function destroyWeb(Player $player)
+    {
+        $this->authorize('delete', $player);
+
+        $this->service->delete($player);
+
+        return redirect()->route('players.index')
+            ->with('success', 'Player deleted successfully.');
+    }
+
+    public function index()
+    {
+        $this->authorize('viewAny', Player::class);
+
+        $players = Player::with('user')
+            ->visibleTo(auth()->user())
+            ->get();
+
+        return PlayerResource::collection($players);
     }
 
     public function show(Player $player)
     {
-        return response()->json($player);
+        $this->authorize('view', $player);
+
+        return new PlayerResource($player->load('user'));
     }
 
-    public function edit(Player $player)
+    public function store(PlayerStoreRequest $request)
     {
-        //
+        $this->authorize('create', Player::class);
+
+        $player = $this->service->create(
+            $request->validated(),
+            $request->user()->is_admin
+        );
+
+        return (new PlayerResource($player))->response()->setStatusCode(201);
     }
 
-    public function update(Request $request, Player $player)
+    public function update(PlayerUpdateRequest $request, Player $player)
     {
-        $data = $request->validate([
-            'first_name' => 'sometimes|required|string|max:255',
-            'last_name' => 'sometimes|required|string|max:255',
-            'email' => ['sometimes', 'required', 'email', Rule::unique('players')->ignore($player->id)],
-            'rank' => ['nullable', Rule::in(['Silver', 'Gold', 'Platinum'])],
-            'country' => 'nullable|string|max:255',
-            'points' => 'nullable|integer|min:0',
-        ]);
+        $this->authorize('update', $player);
 
-        $player->update($data);
+        $player = $this->service->update(
+            $player,
+            $request->validated(),
+            $request->user()->is_admin
+        );
 
-        return response()->json($player);
+        return new PlayerResource($player);
     }
 
     public function destroy(Player $player)
     {
-        $player->delete();
-        return redirect()->route('players.index')->with('message', 'Player deleted successfully.');
+        $this->authorize('delete', $player);
 
+        $this->service->delete($player);
+
+        return response()->noContent();
     }
 }
