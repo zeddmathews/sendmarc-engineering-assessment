@@ -38,6 +38,7 @@ echo "Seeding the database"
 docker compose run --rm seed
 docker compose up -d php-fpm
 docker compose up -d nginx
+docker compose up -d queue
 # docker compose up -d node
 
 # until docker ps --format '{{.Names}}' | grep -q '^tennis-php-fpm$'; do

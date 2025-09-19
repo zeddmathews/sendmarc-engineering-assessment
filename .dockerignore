@@ -5,3 +5,4 @@ vendor
 package-lock.json
 app/node_modules
 app/package-lock.json
+/public/hot

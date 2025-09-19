@@ -21,6 +21,16 @@ services:
       - laravel
     entrypoint: ["/usr/local/bin/entrypoint.sh"]
 
+  queue:
+    build:
+      context: .
+      dockerfile: php/Dockerfile
+    command: ["php artisan queue:work --verbose --tries=3 --timeout=90"]
+    depends_on:
+      - db
+    volumes:
+      - ./app:/var/www/app:cached
+
   nginx:
     container_name: tennis-nginx
     image: nginx:latest

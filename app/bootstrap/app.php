@@ -14,6 +14,7 @@ use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use App\Http\Middleware\AdminOnly;
 use App\Http\Middleware\PlayerExists;
+use Spatie\Csp\AddCspHeaders;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -25,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
         $middleware->statefulApi();
+        $middleware->append(AddCspHeaders::class);
 
         $middleware->web(append: [
             HandleAppearance::class,
