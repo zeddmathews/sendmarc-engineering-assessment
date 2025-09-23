@@ -11,13 +11,20 @@ class MyCspPreset implements Preset
 {
     public function configure(Policy $policy): void
     {
-        $policy->add(Directive::SCRIPT, Keyword::SELF);
-        // $policy->add(Directive::SCRIPT, 'http://127.0.0.1:5173/'); //dev only
-        // $policy->add(Directive::CONNECT, 'ws://127.0.0.1:5173');
-        $policy->add(Directive::STYLE, Keyword::SELF);
-        $policy->add(Directive::STYLE, 'https://fonts.bunny.net');
-        // $policy->add(Directive::STYLE, 'http://127.0.0.1:5173');
-        $policy->add(Directive::FONT, Keyword::SELF);
-        $policy->add(Directive::FONT, 'https://fonts.bunny.net');
+        $policy
+            ->add(Directive::DEFAULT, Keyword::SELF)
+            ->add(Directive::FORM_ACTION, Keyword::SELF)
+            ->add(Directive::IMG, Keyword::SELF);
+        $policy
+            ->add(Directive::SCRIPT, Keyword::SELF)
+            ->add(Directive::STYLE, Keyword::SELF)
+            ->add(Directive::STYLE, 'https://fonts.bunny.net')
+            ->add(Directive::STYLE, 'https://rsms.me/')
+            ->add(Directive::FONT, Keyword::SELF)
+            ->add(Directive::FONT, 'https://fonts.bunny.net')
+            ->add(Directive::FONT, 'https://rsms.me/');
+        $policy
+            ->addNonce(Directive::SCRIPT)
+            ->addNonce(Directive::STYLE);
     }
 }

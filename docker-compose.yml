@@ -30,6 +30,8 @@ services:
       - db
     volumes:
       - ./app:/var/www/app:cached
+    networks:
+      - laravel
 
   nginx:
     container_name: tennis-nginx

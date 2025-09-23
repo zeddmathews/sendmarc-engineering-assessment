@@ -27,11 +27,15 @@ export default defineConfig({
     },
     plugins: [
             laravel({
-                input: ['resources/js/app.ts', 'resources/css/app.css'],
+                input: ['resources/js/app.ts'],
                 refresh: true,
+                // buildDirectory: 'public/build',
             }),
             vue({
                 template: {
+                    compilerOptions: {
+                        inline: false,
+                    },
                     transformAssetUrls: {
                         base: null,
                         includeAbsolute: false,
@@ -40,9 +44,10 @@ export default defineConfig({
             }),
     ],
     build: {
-        outDir: 'public/build',
+        // outDir: 'public/build',
         emptyOutDir: true,
-        manifest: true,
+        // manifest: true,
+        cssCodeSplit: true,
         rollupOptions: {
             input: {
                     app: 'resources/js/app.ts',
